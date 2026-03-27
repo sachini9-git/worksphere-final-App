@@ -28,8 +28,8 @@ if (!apiKey) {
 
 const getAI = () => {
   // Dynamically reload the .env file on every request so developers don't have to restart the server
-  dotenv.config({ path: path.join(__dirname, '..', '.env'), override: true });
-  const freshKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || apiKey;
+  dotenv.config({ path: path.join(__dirname, '..', '.env') });
+  const freshKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || apiKey;
   
   if (!freshKey) {
     throw new Error("No Gemini API key found in .env");

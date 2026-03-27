@@ -94,16 +94,15 @@ export const shouldShowReminder = (lastReminderTime: string | null, reminderHour
   const currentHour = now.getHours();
 
   // Show reminder if:
-  // 1. No reminder shown today, OR
-  // 2. Reminder time hasn't passed yet today
-  if (!lastReminderTime) return currentHour >= reminderHour;
+  // 1. No reminder shown today
+  if (!lastReminderTime) return true;
 
   const lastReminder = new Date(lastReminderTime);
   const today = new Date();
 
   // Different day = should show
   if (lastReminder.toDateString() !== today.toDateString()) {
-    return currentHour >= reminderHour;
+    return true;
   }
 
   return false;
