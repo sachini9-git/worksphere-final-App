@@ -1,0 +1,7 @@
+{
+  "name": "WorkSphere Final Year Project",
+  "description": "AI-Powered Productivity and Study Assistant integrating tasks, notes, focus timer, and AI tutoring.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
