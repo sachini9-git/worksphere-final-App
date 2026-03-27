@@ -107,7 +107,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
             else if (['xlsx', 'xls'].includes(ext)) { docType = 'xlsx'; label = 'Excel Spreadsheet'; }
             else if (['pptx', 'ppt'].includes(ext)) { docType = 'pptx'; label = 'PowerPoint Presentation'; }
 
-            let extractedText = `[${label} — ${file.name}]\n\n*If text extraction failed, this placeholder is shown.*`;
+            let extractedText = `[${label} — ${file.name}]\n\nFile attached perfectly! 🚀 Click "Edit" above and paste your own study notes here so the AI Tutor can read them.`;
 
             try {
                 if (docType === 'pdf') {
@@ -125,7 +125,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                     const result = await mammoth.extractRawText({ arrayBuffer });
                     if (result.value.trim()) extractedText = result.value;
                 } else {
-                    extractedText = `[${label} — ${file.name}]\n\nBinary file contents cannot be parsed into text automatically in this demo.`;
+                    extractedText = `[${label} — ${file.name}]\n\nFile attached safely! 🚀 Click "Edit" to paste your own notes here so the AI Tutor can read them.`;
                 }
             } catch (err) {
                 console.error("Text extraction failed:", err);
@@ -217,7 +217,9 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
         if (!activeDoc) return;
         setIsSummarizing(true);
         try {
-            const summary = await summarizeDocument(activeDoc.content);
+            let summary = await summarizeDocument(activeDoc.content);
+            summary = summary.replace(/\*\*/g, '');
+            summary = summary.replace(/^\s*\*/gm, '•');
             setSummarizedText(summary);
         } catch (error) {
             console.error('Summarization error:', error);
