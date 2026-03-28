@@ -13,7 +13,9 @@ import {
   Menu,
   X,
   Trophy,
-  Star
+  Star,
+  HardDrive,
+  Mail
 } from 'lucide-react';
 import { User } from '../types';
 import { useAppStore } from '../store/appStore';
@@ -196,8 +198,50 @@ export const Layout: React.FC<LayoutProps> = ({
                  </p>
             </div>
 
-            {/* Top Right Gamification Badge */}
+            {/* Quick Access & Top Right Gamification Badge */}
             <div className="flex items-center gap-4 animate-in slide-in-from-right-4 fade-in duration-700 delay-200">
+              
+              {/* Quick Access Dock */}
+              <div className="hidden lg:flex bg-white/80 backdrop-blur-md rounded-2xl p-1.5 px-3 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all items-center gap-2 mr-2">
+                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Launch</span>
+
+                 <div className="relative group/tooltip">
+                   <a href="https://calendar.google.com" target="_blank" rel="noreferrer" className="flex items-center justify-center p-2 rounded-xl bg-violet-50 text-violet-600 hover:bg-violet-600 hover:text-white transition-all hover:scale-110 active:scale-95 shadow-sm">
+                     <Calendar size={18} />
+                   </a>
+                   <div className="absolute top-[120%] left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl z-50">
+                     Google Calendar
+                   </div>
+                 </div>
+
+                 <div className="relative group/tooltip">
+                   <a href="https://drive.google.com" target="_blank" rel="noreferrer" className="flex items-center justify-center p-2 rounded-xl bg-teal-50 text-teal-600 hover:bg-teal-600 hover:text-white transition-all hover:scale-110 active:scale-95 shadow-sm">
+                     <HardDrive size={18} />
+                   </a>
+                   <div className="absolute top-[120%] left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl z-50">
+                     Google Drive
+                   </div>
+                 </div>
+
+                 <div className="relative group/tooltip">
+                   <a href="https://mail.google.com" target="_blank" rel="noreferrer" className="flex items-center justify-center p-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all hover:scale-110 active:scale-95 shadow-sm">
+                     <Mail size={18} />
+                   </a>
+                   <div className="absolute top-[120%] left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl z-50">
+                     Gmail
+                   </div>
+                 </div>
+
+                 <div className="relative group/tooltip">
+                   <a href="https://docs.google.com" target="_blank" rel="noreferrer" className="flex items-center justify-center p-2 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all hover:scale-110 active:scale-95 shadow-sm">
+                     <FileText size={18} />
+                   </a>
+                   <div className="absolute top-[120%] left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl z-50">
+                     Google Docs
+                   </div>
+                 </div>
+              </div>
+
               <div className="bg-white/80 backdrop-blur-md rounded-2xl p-3 px-5 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all flex items-center gap-4 group">
                 <div className="bg-gradient-to-br from-amber-100 to-orange-100 text-amber-600 p-2 rounded-xl group-hover:scale-110 transition-transform">
                   <Trophy size={20} className="fill-amber-500/20" />

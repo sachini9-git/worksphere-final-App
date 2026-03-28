@@ -228,20 +228,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
 
     }, [tasks, sessions, onNavigate]);
 
-    const GoogleAppCard = ({ name, icon: Icon, url, color, desc }: any) => (
-        <a href={url} target="_blank" rel="noreferrer" className="group bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
-            <div className={`absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity text-slate-300`}>
-                <ArrowUpRight size={18} />
-            </div>
-            <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                <Icon size={24} />
-            </div>
-            <div>
-                <h4 className="font-display font-bold text-slate-800 text-base mb-1 group-hover:text-violet-600 transition-colors">{name}</h4>
-                <p className="text-xs text-slate-500 font-medium">{desc}</p>
-            </div>
-        </a>
-    );
+
 
     const { dashboardAiTip, setDashboardAiTip } = useAppStore();
     const [aiTipText, setAiTipText] = React.useState<string | null>(dashboardAiTip);
@@ -288,43 +275,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
     return (
         <div className="space-y-8 pb-10">
 
-            {/* Google Ecosystem Section */}
-            <section>
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="h-8 w-1.5 bg-violet-600 rounded-full"></div>
-                    <h3 className="text-xl font-display font-bold text-slate-800">Quick Access</h3>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    <GoogleAppCard
-                        name="Calendar"
-                        icon={Calendar}
-                        url="https://calendar.google.com"
-                        color="bg-violet-50 text-violet-600"
-                        desc="Schedule & Plans"
-                    />
-                    <GoogleAppCard
-                        name="Drive"
-                        icon={HardDrive}
-                        url="https://drive.google.com"
-                        color="bg-teal-50 text-teal-600"
-                        desc="Files & Clouds"
-                    />
-                    <GoogleAppCard
-                        name="Gmail"
-                        icon={Mail}
-                        url="https://mail.google.com"
-                        color="bg-rose-50 text-rose-600"
-                        desc="Inbox (2 new)"
-                    />
-                    <GoogleAppCard
-                        name="Docs"
-                        icon={FileText}
-                        url="https://docs.google.com"
-                        color="bg-indigo-50 text-indigo-500"
-                        desc="Recent Papers"
-                    />
-                </div>
-            </section>
+
 
             {/* AI Tip Modal */}
             {isTipOpen && (
