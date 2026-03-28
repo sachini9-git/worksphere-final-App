@@ -13,6 +13,7 @@ interface AIAssistantProps {
 }
 
 export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, addMessage }) => {
+    const contextDocsList = documents.filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set');
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
@@ -130,11 +131,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                     <p className="text-xs text-slate-500 font-medium leading-relaxed">Select notes to personalize the AI's answers.</p>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30">
-                    {documents.length === 0 ? (
+                    {contextDocsList.length === 0 ? (
                         <div className="p-8 text-center text-slate-400 text-sm font-medium border-2 border-dashed border-slate-200 rounded-2xl">
                             No notes found.<br />Create notes in the Library to use them here.
                         </div>
-                    ) : documents.map(doc => (
+                    ) : contextDocsList.map(doc => (
                         <div
                             key={doc.id}
                             onClick={() => toggleDocSelection(doc.id)}
@@ -248,7 +249,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                             placeholder={isListening ? "Listening..." : "Ask your tutor anything..."}
                             disabled={isListening && !input} // Allow editing while listening if needed, but typically locking is safer
                             rows={1}
-                            className="flex-1 bg-transparent border-none focus:ring-0 py-3 px-2 text-slate-800 placeholder-slate-400 font-medium text-sm resize-none max-h-32"
+                            className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 py-3 px-2 text-slate-800 placeholder-slate-400 font-medium text-sm resize-none max-h-32"
                         />
 
                         <button

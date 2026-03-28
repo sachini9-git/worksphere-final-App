@@ -56,7 +56,7 @@ export interface Folder {
   created_at: string;
 }
 
-export type DocumentType = 'pdf' | 'doc' | 'note' | 'xlsx' | 'pptx' | 'csv';
+export type DocumentType = 'pdf' | 'doc' | 'note' | 'xlsx' | 'pptx' | 'csv' | 'flashcard_set' | 'quiz_set';
 
 export interface Document {
   id: string;

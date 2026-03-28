@@ -7,20 +7,22 @@ import {
   BookOpen,
 } from "lucide-react";
 import { generateFlashcards, Flashcard } from "../services/flashcardService";
-import { Document } from "../types";
+import { Document, DocumentType } from "../types";
 import { motion } from "framer-motion";
 
 interface FlashcardsProps {
   documents: Document[];
+  addDocument: (title: string, content: string, folderId: string | null, type?: DocumentType) => void;
 }
 
-export const Flashcards: React.FC<FlashcardsProps> = ({ documents }) => {
+export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }) => {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedDoc, setSelectedDoc] = useState<string>(documents[0]?.id || "");
+  const [selectedDoc, setSelectedDoc] = useState<string>(documents.filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set')[0]?.id || "");
   const [cardCount, setCardCount] = useState(5);
+  const [viewMode, setViewMode] = useState<'create' | 'saved'>('create');
 
   const generateCards = async () => {
     if (!selectedDoc) return;
@@ -58,19 +60,51 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents }) => {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-violet-500/10 border border-violet-100/50"
     >
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-violet-500/30">
-          <BookOpen size={24} />
+      <div className="flex items-center gap-4 mb-8 justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-violet-500/30">
+            <BookOpen size={24} />
+          </div>
+          <div>
+            <h2 className="font-display font-extrabold text-slate-800 text-3xl tracking-tight">
+              Flashcard Study
+            </h2>
+            <p className="text-slate-500 text-sm font-medium">Master your documents rapidly</p>
+          </div>
         </div>
-        <div>
-          <h2 className="font-display font-extrabold text-slate-800 text-3xl tracking-tight">
-            Flashcard Study
-          </h2>
-          <p className="text-slate-500 text-sm font-medium">Master your documents rapidly</p>
+        <div className="flex bg-slate-100 p-1.5 rounded-xl">
+          <button onClick={() => setViewMode('create')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'create' ? 'bg-white shadow-sm text-violet-600' : 'text-slate-500 hover:text-slate-700'}`}>Create</button>
+          <button onClick={() => setViewMode('saved')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'saved' ? 'bg-white shadow-sm text-violet-600' : 'text-slate-500 hover:text-slate-700'}`}>Saved Sets</button>
         </div>
       </div>
 
-      {flashcards.length === 0 ? (
+      {viewMode === 'saved' ? (
+        <div className="space-y-4 animate-in fade-in">
+          {documents.filter(d => d.type === 'flashcard_set').length === 0 ? (
+            <p className="text-center text-slate-500 py-12 font-medium bg-slate-50 rounded-2xl border border-slate-100">No saved flashcard sets yet.</p>
+          ) : (
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {documents.filter(d => d.type === 'flashcard_set').map(doc => (
+                 <div key={doc.id} onClick={() => {
+                   try {
+                     const parsed = JSON.parse(doc.content);
+                     setFlashcards(parsed);
+                     setViewMode('create');
+                     setCurrentIndex(0);
+                     setIsFlipped(false);
+                   } catch(e) { alert("Failed to load flashcards."); }
+                 }} className="p-5 bg-white border border-slate-200 rounded-2xl cursor-pointer hover:border-violet-400 hover:shadow-md transition-all group shadow-sm">
+                   <div className="flex items-center gap-3 mb-2">
+                     <div className="p-2 bg-violet-50 rounded-lg text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors"><BookOpen size={18} /></div>
+                     <h3 className="font-bold text-slate-800 line-clamp-1">{doc.title}</h3>
+                   </div>
+                   <p className="text-xs text-slate-500 font-medium">Saved on {new Date(doc.created_at).toLocaleDateString()}</p>
+                 </div>
+               ))}
+             </div>
+          )}
+        </div>
+      ) : flashcards.length === 0 ? (
         <div className="space-y-6">
           <div className="space-y-4">
             <div>
@@ -82,7 +116,7 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents }) => {
                 onChange={(e) => setSelectedDoc(e.target.value)}
                 className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-slate-800"
               >
-                {documents.map((doc) => (
+                {documents.filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set').map((doc) => (
                   <option key={doc.id} value={doc.id}>
                     {doc.title}
                   </option>
@@ -216,13 +250,26 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents }) => {
             </button>
           </div>
 
-          {/* Create new set */}
-          <button
-            onClick={() => setFlashcards([])}
-            className="w-full bg-slate-200 text-slate-700 py-3 rounded-2xl font-bold hover:bg-slate-300 transition-all"
-          >
-            Create New Set
-          </button>
+          <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => {
+                  const content = JSON.stringify(flashcards);
+                  const docTitle = documents.find(d => d.id === selectedDoc)?.title || 'Custom';
+                  addDocument(`Flashcards: ${docTitle}`, content, null, 'flashcard_set');
+                  alert('Flashcards saved to Library!');
+                  setViewMode('saved');
+                }}
+                className="flex-1 bg-violet-600 text-white py-3 rounded-2xl font-bold hover:bg-violet-700 transition-all shadow-md shadow-violet-500/20"
+              >
+              Save to Library
+            </button>
+            <button
+              onClick={() => setFlashcards([])}
+              className="flex-1 bg-slate-200 text-slate-700 py-3 rounded-2xl font-bold hover:bg-slate-300 transition-all"
+            >
+              Create New Set
+            </button>
+          </div>
         </div>
       )}
     </motion.div>

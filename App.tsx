@@ -623,8 +623,8 @@ const App: React.FC = () => {
             )}
             {activeTab === 'documents' && <Documents documents={documents} folders={folders} addDocument={addDocument} updateDocument={updateDocument} addFolder={addFolder} deleteDocument={deleteDocument} deleteFolder={deleteFolder} />}
             {activeTab === 'ai' && <AIAssistant documents={documents} history={chatHistory} addMessage={addMessage} />}
-            {activeTab === 'flashcards' && <Flashcards documents={documents} />}
-            {activeTab === 'quiz' && <Quiz documents={documents} />}
+            {activeTab === 'flashcards' && <Flashcards documents={documents} addDocument={addDocument} />}
+            {activeTab === 'quiz' && <Quiz documents={documents} addDocument={addDocument} />}
         </Layout>
     );
 };
