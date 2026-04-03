@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { CheckCircle, XCircle, RotateCcw, Brain, Lock, Unlock, BookOpen } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { CheckCircle, XCircle, RotateCcw, Brain, Lock, Unlock, BookOpen, Timer, Lightbulb, AlertTriangle } from "lucide-react";
 import { generateQuiz, QuizQuestion } from "../services/flashcardService";
 import { Document, DocumentType } from "../types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,10 +22,85 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
   const [viewMode, setViewMode] = useState<'create' | 'saved'>('create');
   const { addXP } = useAppStore();
 
+  // Timer state — 1.5 minutes per question
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTimer = useCallback((numQuestions: number) => {
+    // 1.5 minutes (90 seconds) per question
+    const totalSeconds = numQuestions * 90;
+    setTimeLeft(totalSeconds);
+    setIsTimerRunning(true);
+  }, []);
+
+  const stopTimer = useCallback(() => {
+    setIsTimerRunning(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (isTimerRunning && timeLeft > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [isTimerRunning]);
+
+  // Auto-submit when timer reaches 0
+  useEffect(() => {
+    if (isTimerRunning && timeLeft === 0 && questions.length > 0 && !showResults) {
+      stopTimer();
+      handleSubmitQuiz();
+    }
+  }, [timeLeft, isTimerRunning, questions.length, showResults]);
+
+  // Format seconds to mm:ss
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Timer urgency color
+  const getTimerColor = (): string => {
+    if (!isTimerRunning) return 'text-slate-500';
+    const totalTime = questions.length * 90;
+    const pct = timeLeft / totalTime;
+    if (pct <= 0.15) return 'text-red-600 animate-pulse';
+    if (pct <= 0.3) return 'text-amber-600';
+    return 'text-emerald-600';
+  };
+
+  const getTimerBg = (): string => {
+    if (!isTimerRunning) return 'bg-slate-50 border-slate-200';
+    const totalTime = questions.length * 90;
+    const pct = timeLeft / totalTime;
+    if (pct <= 0.15) return 'bg-red-50 border-red-200';
+    if (pct <= 0.3) return 'bg-amber-50 border-amber-200';
+    return 'bg-emerald-50 border-emerald-200';
+  };
+
   const generateNewQuiz = async () => {
     if (!selectedDoc) return;
 
     setIsLoading(true);
+    stopTimer();
     const doc = documents.find(d => d.id === selectedDoc);
     if (doc) {
       const newQuestions = await generateQuiz([doc], questionCount);
@@ -33,6 +108,9 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
       setCurrentIndex(0);
       setSelectedAnswers(new Array(newQuestions.length).fill(null));
       setShowResults(false);
+      if (newQuestions.length > 0) {
+        startTimer(newQuestions.length);
+      }
     }
     setIsLoading(false);
   };
@@ -44,6 +122,7 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
   };
 
   const handleSubmitQuiz = () => {
+    stopTimer();
     setShowResults(true);
     
     // Calculate correct answers
@@ -53,7 +132,7 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
 
     if (correct > 0) {
       addXP(correct * MathConstants.XP_FLASHCARD);
-      sounds.playSuccessLevelUp(); // Optional: A nice sound for submitting
+      sounds.playSuccessLevelUp();
     }
   };
 
@@ -67,6 +146,15 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     }
+  };
+
+  // Reset quiz to create mode
+  const handleResetToCreate = () => {
+    stopTimer();
+    setQuestions([]);
+    setSelectedAnswers([]);
+    setCurrentIndex(0);
+    setShowResults(false);
   };
 
   const currentQuestion = questions[currentIndex];
@@ -100,7 +188,7 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
           </div>
         </div>
         <div className="flex bg-slate-100 p-1.5 rounded-xl">
-          <button onClick={() => setViewMode('create')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'create' ? 'bg-white shadow-sm text-violet-600' : 'text-slate-500 hover:text-slate-700'}`}>Create</button>
+          <button onClick={() => { setViewMode('create'); handleResetToCreate(); }} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'create' ? 'bg-white shadow-sm text-violet-600' : 'text-slate-500 hover:text-slate-700'}`}>Create</button>
           <button onClick={() => setViewMode('saved')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'saved' ? 'bg-white shadow-sm text-violet-600' : 'text-slate-500 hover:text-slate-700'}`}>Saved Quizzes</button>
         </div>
       </div>
@@ -165,6 +253,26 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
                 onChange={(e) => setQuestionCount(Number(e.target.value))}
                 className="w-full accent-violet-600"
               />
+              <div className="flex justify-between text-xs text-slate-400 font-medium mt-1">
+                <span>3</span>
+                <span className="text-violet-500 font-bold">⏱ {Math.ceil(questionCount * 1.5)} min timer</span>
+                <span>15</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Awareness tip */}
+          <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl p-4 flex items-start gap-3">
+            <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600 flex-shrink-0 mt-0.5">
+              <Lightbulb size={16} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-indigo-800 mb-1">How it works</p>
+              <p className="text-xs text-indigo-600 leading-relaxed">
+                A timed quiz will be generated from your selected document. You get <strong>1.5 minutes per question</strong> to answer. 
+                The timer auto-submits when it runs out. Correct answers earn you <strong>XP points</strong>! 
+                After completing, you can save the quiz with answers to review later.
+              </p>
             </div>
           </div>
 
@@ -209,13 +317,38 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
             Quiz Mode
           </h2>
         </div>
-        <span className="text-sm font-bold text-slate-600">
-          Question {currentIndex + 1} of {questions.length}
-        </span>
+        <div className="flex items-center gap-3">
+          {/* Timer display */}
+          {isTimerRunning && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-mono text-lg font-black ${getTimerBg()} ${getTimerColor()}`}
+            >
+              <Timer size={18} />
+              {formatTime(timeLeft)}
+            </motion.div>
+          )}
+          <span className="text-sm font-bold text-slate-600">
+            Question {currentIndex + 1} of {questions.length}
+          </span>
+        </div>
       </div>
 
       {!showResults ? (
         <div className="space-y-6">
+          {/* Timer warning banner */}
+          {isTimerRunning && timeLeft > 0 && timeLeft <= questions.length * 90 * 0.15 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-3"
+            >
+              <AlertTriangle size={18} className="text-red-500 flex-shrink-0" />
+              <p className="text-xs font-bold text-red-700">Time is running out! The quiz will auto-submit when the timer reaches zero.</p>
+            </motion.div>
+          )}
+
           {/* Question */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -267,6 +400,16 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
               </div>
             </motion.div>
           </AnimatePresence>
+
+          {/* Awareness tip during quiz */}
+          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3">
+            <Lightbulb size={16} className="text-amber-500 flex-shrink-0" />
+            <p className="text-xs text-slate-500 font-medium">
+              {currentIndex === 0 && "Take your time to read each question carefully. You can navigate back to change answers."}
+              {currentIndex > 0 && currentIndex < questions.length - 1 && "You can revisit previous questions using the Previous button before submitting."}
+              {currentIndex === questions.length - 1 && "This is the last question! Review your answers, then hit Submit when ready."}
+            </p>
+          </div>
 
           {/* Progress bar */}
           <div className="w-full bg-slate-200 rounded-full h-2">
@@ -358,7 +501,7 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
               {questions.map((q, idx) => {
                 const isCorrect = selectedAnswers[idx] === q.correctAnswer;
                 return (
-                  <div key={q.id} className="border-l-4 border-slate-200 pl-4 py-3">
+                  <div key={q.id} className={`border-l-4 pl-4 py-3 ${isCorrect ? 'border-emerald-400' : 'border-rose-400'}`}>
                     <div className="flex items-start gap-3">
                       <div>
                         {isCorrect ? (
@@ -380,6 +523,11 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
                             Correct: {q.options[q.correctAnswer]}
                           </p>
                         )}
+                        {isCorrect && (
+                          <p className="text-xs text-emerald-600 font-bold">
+                            ✓ Correct answer
+                          </p>
+                        )}
                         <p className="text-xs text-slate-500 mt-2 italic">
                           {q.explanation}
                         </p>
@@ -398,19 +546,15 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
                 const content = JSON.stringify(questions);
                 const docTitle = documents.find(d => d.id === selectedDoc)?.title || 'Custom';
                 addDocument(`Quiz: ${docTitle}`, content, null, 'quiz_set');
-                alert('Quiz questions saved to Library!');
+                alert('Quiz saved with answers to Library!');
                 setViewMode('saved');
               }}
               className="flex-1 bg-violet-600 text-white py-3 rounded-xl font-bold hover:bg-violet-700 transition-all shadow-md shadow-violet-500/20 flex justify-center items-center gap-2"
             >
-              <BookOpen size={18} /> Save Questions
+              <BookOpen size={18} /> Save with Answers
             </button>
             <button
-              onClick={() => {
-                setQuestions([]);
-                setSelectedAnswers([]);
-                setCurrentIndex(0);
-              }}
+              onClick={handleResetToCreate}
               className="flex-1 bg-slate-200 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-300 transition-all flex items-center justify-center gap-2"
             >
               <RotateCcw size={18} />
