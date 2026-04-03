@@ -509,7 +509,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
 
                 <div className="bg-white/50 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-rose-400/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
-                    <div className="flex justify-between items-center mb-8 relative z-10">
+                    <div className="flex justify-between items-center mb-6 relative z-10">
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-3">
                                 <h3 className="text-xl font-display font-black text-slate-800">Today's Tasks</h3>
@@ -521,66 +521,122 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                             </div>
                             <p className="text-xs font-bold text-slate-400">Scheduled for today</p>
                         </div>
-                    </div>
-                    <div className="h-72 flex items-center justify-center relative z-10">
-                        <div className="relative flex items-center justify-center w-[220px] h-[220px]">
-                            {todayCompletionPercentage === 100 && tasksDueToday.length > 0 && (
-                                <motion.div
-                                    initial={{ scale: 0, opacity: 0, y: 20 }}
-                                    animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 1], y: 0 }}
-                                    transition={{ duration: 0.8, type: "spring", bounce: 0.5 }}
-                                    className="absolute -top-6 text-5xl z-20 drop-shadow-md"
-                                >
-                                    👑
-                                </motion.div>
-                            )}
-                            <svg width="220" height="220" className="transform -rotate-90 drop-shadow-2xl z-10">
-                                <defs>
-                                    <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#f43f5e" />
-                                        <stop offset="100%" stopColor="#8b5cf6" />
-                                    </linearGradient>
-                                    <filter id="glowRing2" x="-20%" y="-20%" width="140%" height="140%">
-                                        <feGaussianBlur stdDeviation="6" result="blur" />
-                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                                    </filter>
-                                </defs>
-                                <circle
-                                    cx="110" cy="110" r="90"
-                                    stroke="rgba(241, 245, 249, 0.4)" strokeWidth="18" fill="transparent"
-                                />
-                                <motion.circle
-                                    cx="110" cy="110" r="90"
-                                    stroke="url(#ringGradient)" strokeWidth="18" fill="transparent"
-                                    strokeLinecap="round"
-                                    strokeDasharray={2 * Math.PI * 90}
-                                    initial={{ strokeDashoffset: 2 * Math.PI * 90 }}
-                                    animate={{ strokeDashoffset: (2 * Math.PI * 90) - ((todayCompletionPercentage / 100) * (2 * Math.PI * 90)) }}
-                                    transition={{ duration: 2, ease: "easeOut", delay: 0.2 }}
-                                    filter={todayCompletionPercentage > 0 ? "url(#glowRing2)" : ""}
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-                                <motion.span
-                                    initial={{ opacity: 0, scale: 0.5 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 1, duration: 0.5 }}
-                                    className="text-5xl font-display font-black text-slate-800"
-                                >
-                                    {todayCompletionPercentage}<span className="text-2xl text-slate-400 font-bold">%</span>
-                                </motion.span>
-                                <span className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Productivity</span>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]"></span>
+                                <span className="text-xs font-bold text-slate-500">Done ({completedTasksToday})</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-slate-200"></span>
+                                <span className="text-xs font-bold text-slate-500">Pending ({tasksDueToday.length - completedTasksToday})</span>
                             </div>
                         </div>
                     </div>
-                    <div className="flex justify-center gap-8 mt-4 relative z-10">
-                        <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]"></span>
-                            <span className="text-sm font-bold text-slate-600">Completed <span className="text-slate-400 font-medium">({completedTasksToday})</span></span>
+                    <div className="flex gap-6 relative z-10" style={{ minHeight: '300px' }}>
+                        {/* Left: Progress Ring */}
+                        <div className="flex flex-col items-center justify-center flex-shrink-0">
+                            <div className="relative flex items-center justify-center w-[160px] h-[160px]">
+                                {todayCompletionPercentage === 100 && tasksDueToday.length > 0 && (
+                                    <motion.div
+                                        initial={{ scale: 0, opacity: 0, y: 20 }}
+                                        animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 1], y: 0 }}
+                                        transition={{ duration: 0.8, type: "spring", bounce: 0.5 }}
+                                        className="absolute -top-5 text-4xl z-20 drop-shadow-md"
+                                    >
+                                        👑
+                                    </motion.div>
+                                )}
+                                <svg width="160" height="160" className="transform -rotate-90 drop-shadow-xl z-10">
+                                    <defs>
+                                        <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#f43f5e" />
+                                            <stop offset="100%" stopColor="#8b5cf6" />
+                                        </linearGradient>
+                                        <filter id="glowRing2" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="6" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                    </defs>
+                                    <circle
+                                        cx="80" cy="80" r="65"
+                                        stroke="rgba(241, 245, 249, 0.4)" strokeWidth="14" fill="transparent"
+                                    />
+                                    <motion.circle
+                                        cx="80" cy="80" r="65"
+                                        stroke="url(#ringGradient)" strokeWidth="14" fill="transparent"
+                                        strokeLinecap="round"
+                                        strokeDasharray={2 * Math.PI * 65}
+                                        initial={{ strokeDashoffset: 2 * Math.PI * 65 }}
+                                        animate={{ strokeDashoffset: (2 * Math.PI * 65) - ((todayCompletionPercentage / 100) * (2 * Math.PI * 65)) }}
+                                        transition={{ duration: 2, ease: "easeOut", delay: 0.2 }}
+                                        filter={todayCompletionPercentage > 0 ? "url(#glowRing2)" : ""}
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                                    <motion.span
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 1, duration: 0.5 }}
+                                        className="text-4xl font-display font-black text-slate-800"
+                                    >
+                                        {todayCompletionPercentage}<span className="text-lg text-slate-400 font-bold">%</span>
+                                    </motion.span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Productivity</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full bg-slate-200"></span>
-                            <span className="text-sm font-bold text-slate-600">Pending <span className="text-slate-400 font-medium">({tasksDueToday.length - completedTasksToday})</span></span>
+
+                        {/* Right: Task List */}
+                        <div className="flex-1 min-w-0 flex flex-col">
+                            {tasksDueToday.length === 0 ? (
+                                <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
+                                    <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-3 border border-slate-100">
+                                        <Calendar size={24} className="text-slate-300" />
+                                    </div>
+                                    <p className="text-sm font-bold text-slate-400">No tasks scheduled for today</p>
+                                    <p className="text-xs text-slate-300 mt-1">Use the Planner to schedule tasks</p>
+                                </div>
+                            ) : (
+                                <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar" style={{ maxHeight: '300px' }}>
+                                    {tasksDueToday.map((task, idx) => (
+                                        <motion.div
+                                            key={task.id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ duration: 0.3, delay: idx * 0.05 }}
+                                            className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
+                                                task.status === 'done'
+                                                    ? 'bg-emerald-50/60 border-emerald-100'
+                                                    : 'bg-white/60 border-slate-100 hover:border-violet-200 hover:bg-violet-50/30'
+                                            }`}
+                                        >
+                                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                                task.status === 'done'
+                                                    ? 'bg-emerald-500 text-white'
+                                                    : 'border-2 border-slate-200'
+                                            }`}>
+                                                {task.status === 'done' && <CheckCircle size={14} />}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className={`text-sm font-bold truncate ${
+                                                    task.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-700'
+                                                }`}>
+                                                    {task.title}
+                                                </p>
+                                            </div>
+                                            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex-shrink-0 ${
+                                                task.priority === 'high'
+                                                    ? 'bg-rose-100 text-rose-600'
+                                                    : task.priority === 'medium'
+                                                        ? 'bg-amber-100 text-amber-600'
+                                                        : 'bg-slate-100 text-slate-500'
+                                            }`}>
+                                                {task.priority}
+                                            </span>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
