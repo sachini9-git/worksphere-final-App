@@ -46,6 +46,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
         .filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
 
     const displayedDocs = documents
+        .filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set')
         .filter(d => (d.folder_id === (currentFolderId || null)) || (!d.folder_id && !currentFolderId))
         .filter(d => d.title.toLowerCase().includes(search.toLowerCase()));
 
