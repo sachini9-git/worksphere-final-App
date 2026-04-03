@@ -10,11 +10,40 @@ export interface Flashcard {
   difficulty: "easy" | "medium" | "hard";
 }
 
+/**
+ * Checks whether the document content is actually useful study material
+ * rather than a placeholder, extraction-failure message, or too-short text.
+ */
+const isContentUsable = (content: string): boolean => {
+  if (!content || content.trim().length < 50) return false;
+
+  const placeholderPatterns = [
+    'File attached perfectly',
+    'Click "Edit" above and paste',
+    'Click Edit above and paste',
+    'paste your own study notes',
+    'text extraction failed',
+    'original PDF content is not available',
+    'File attached safely',
+    'so the AI Tutor can read them',
+  ];
+
+  const lowerContent = content.toLowerCase();
+  return !placeholderPatterns.some(pattern => lowerContent.includes(pattern.toLowerCase()));
+};
+
 export const generateFlashcards = async (
   document: Document,
   count: number = 5
 ): Promise<Flashcard[]> => {
   try {
+    // Validate that the document has real study content
+    if (!isContentUsable(document.content)) {
+      console.warn('Flashcard generation skipped: document content is placeholder or too short.');
+      alert('This document does not have enough study content. Please open the document, click "Edit", and paste your actual study notes before generating flashcards.');
+      return [];
+    }
+
     let apiKey = '';
 
     // Safely check for import.meta.env
@@ -31,7 +60,20 @@ export const generateFlashcards = async (
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `Generate exactly ${count} flashcards from the following study material. Return ONLY a JSON array with no markdown formatting. Each flashcard must have \"question\", \"answer\", and \"difficulty\" (easy/medium/hard) properties. Material:\n\n${document.content}`;
+    const prompt = `You are an expert educator. Generate exactly ${count} high-quality study flashcards based STRICTLY on the educational content provided below.
+
+CRITICAL RULES:
+- Each flashcard must test knowledge of a SPECIFIC fact, concept, or idea found in the material.
+- Questions must be clear, direct, and educational — NOT about the format, source, or metadata of the material itself.
+- Do NOT generate questions about file types, text extraction, PDFs, or the study material's structure.
+- Do NOT reference "the provided study material", "the text", "the document", or "the passage" in your questions. Ask about the SUBJECT MATTER directly.
+- Answers must be accurate and concise, drawn directly from the content.
+- Vary difficulty levels across easy, medium, and hard.
+
+Return ONLY a valid JSON array with no markdown formatting, no code fences, no extra text. Each object must have exactly these keys: "question", "answer", "difficulty" (one of: "easy", "medium", "hard").
+
+Study Material:
+${document.content}`;
 
     const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
