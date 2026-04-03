@@ -230,13 +230,15 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
         }
     };
 
+    const isPanelOpen = !!(activeDoc || isCreating || isEditing);
+
     return (
-        <div className="flex h-full gap-8">
-            <div className={`flex flex-col h-full transition-all duration-500 ease-in-out ${activeDoc || isCreating ? 'w-4/12' : 'w-full'} bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-sm border border-slate-200/60 overflow-hidden relative z-0`}>
+        <div className="flex h-full gap-4">
+            <div className={`flex flex-col h-full transition-all duration-500 ease-in-out ${isPanelOpen ? 'w-5/12' : 'w-full'} bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-sm border border-slate-200/60 overflow-hidden relative z-0`}>
                 <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-violet-400/15 rounded-full blur-[100px] pointer-events-none animate-blob -z-10"></div>
                 {/* Header / Toolbar */}
-                <div className="p-6 border-b border-slate-100 bg-white/50 backdrop-blur-md sticky top-0 z-20">
-                    <div className="flex items-center justify-between mb-6">
+                <div className={`${isPanelOpen ? 'p-4' : 'p-6'} border-b border-slate-100 bg-white/50 backdrop-blur-md sticky top-0 z-20`}>
+                    <div className={`flex items-center justify-between ${isPanelOpen ? 'mb-3' : 'mb-6'}`}>
                         <h2 className="text-2xl font-display font-extrabold text-slate-800">Library</h2>
                         <div className="flex gap-1 bg-slate-100/80 p-1.5 rounded-xl">
                             <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}><LayoutGrid size={18} /></button>
@@ -302,9 +304,9 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                 )}
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30">
+                <div className={`flex-1 overflow-y-auto ${isPanelOpen ? 'p-3' : 'p-6'} bg-slate-50/30`}>
                     {viewMode === 'grid' ? (
-                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 perspective-[2000px]">
+                        <div className={`grid gap-4 perspective-[2000px] ${isPanelOpen ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
                             <AnimatePresence>
                                 {displayedFolders.map((folder, idx) => (
                                     <motion.div key={folder.id} 
@@ -314,7 +316,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         transition={{ duration: 0.4, delay: idx * 0.05, type: "spring" }}
                                         whileHover={{ scale: 1.02 }}
-                                        className="group relative p-6 bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center text-center gap-4"
+                                        className={`group relative ${isPanelOpen ? 'p-4' : 'p-6'} bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center text-center gap-3`}
                                     >
                                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                             <button 
@@ -325,7 +327,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                                 <Trash2 size={16} />
                                             </button>
                                         </div>
-                                        <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-slate-100">
+                                        <div className={`${isPanelOpen ? 'w-12 h-12' : 'w-16 h-16'} bg-slate-50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-slate-100`}>
                                             <FolderOpen size={32} className="text-violet-600" />
                                         </div>
                                         <span className="text-sm font-bold text-slate-700 line-clamp-1 group-hover:text-violet-700">{folder.name}</span>
@@ -339,7 +341,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         transition={{ duration: 0.4, delay: (displayedFolders.length + idx) * 0.05, type: "spring" }}
                                         whileHover={{ scale: 1.02 }}
-                                        className={`group p-5 bg-white border rounded-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 relative ${activeDoc?.id === doc.id ? 'border-violet-400 ring-2 ring-violet-500/10 shadow-md' : 'border-slate-200/60 shadow-sm hover:shadow-md hover:border-slate-300'}`}
+                                        className={`group ${isPanelOpen ? 'p-3' : 'p-5'} bg-white border rounded-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between ${isPanelOpen ? 'h-36' : 'h-48'} relative ${activeDoc?.id === doc.id ? 'border-violet-400 ring-2 ring-violet-500/10 shadow-md' : 'border-slate-200/60 shadow-sm hover:shadow-md hover:border-slate-300'}`}
                                     >
                                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                             <button 
@@ -459,7 +461,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
 
             {/* Right Panel: Editor / Viewer */}
             {(activeDoc || isCreating || isEditing) && (
-                <div className="w-8/12 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60 flex flex-col overflow-hidden animate-in slide-in-from-right-8 duration-500 z-10 relative">
+                <div className="w-7/12 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60 flex flex-col overflow-hidden animate-in slide-in-from-right-8 duration-500 z-10 relative">
                     <div className="absolute -bottom-32 left-[20%] w-[500px] h-[500px] bg-fuchsia-400/10 rounded-full blur-[100px] pointer-events-none animate-blob animation-delay-4000 z-0"></div>
                     <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-white/50 backdrop-blur-md relative z-10">
                         <button onClick={() => { setActiveDoc(null); setIsCreating(false); setIsEditing(false); stopListening(); }} className="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors">
