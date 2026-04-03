@@ -115,6 +115,15 @@ export const generateQuiz = async (
   questionCount: number = 5
 ): Promise<QuizQuestion[]> => {
   try {
+    // Filter out documents with placeholder/empty content
+    const usableDocs = documents.filter(doc => isContentUsable(doc.content));
+
+    if (usableDocs.length === 0) {
+      console.warn('Quiz generation skipped: no documents with usable study content.');
+      alert('The selected document(s) do not have enough study content. Please open the document, click "Edit", and paste your actual study notes before generating a quiz.');
+      return [];
+    }
+
     let apiKey = '';
 
     // Safely check for import.meta.env
@@ -131,8 +140,22 @@ export const generateQuiz = async (
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const contextText = documents.map((doc) => `[${doc.title}]\n${doc.content}`).join('\n\n');
-    const prompt = `Generate exactly ${questionCount} multiple choice quiz questions from the following study materials. Return ONLY a JSON array with no markdown. Materials:\n\n${contextText}`;
+    const contextText = usableDocs.map((doc) => `[${doc.title}]\n${doc.content}`).join('\n\n');
+    const prompt = `You are an expert educator creating a multiple-choice quiz. Generate exactly ${questionCount} high-quality quiz questions based STRICTLY on the educational content below.
+
+CRITICAL RULES:
+- Each question must test knowledge of a SPECIFIC fact, concept, or idea from the material.
+- Questions must be clear, direct, and educational — NOT about the format, source, or metadata of the material.
+- Do NOT generate questions about file types, text extraction, PDFs, or the study material's structure.
+- Do NOT reference "the provided study material", "the text", "the document", or "the passage" in questions. Ask about the SUBJECT MATTER directly.
+- Each question must have exactly 4 options (A, B, C, D) with only ONE correct answer.
+- Include a brief explanation for WHY the correct answer is right.
+- Vary difficulty across the questions.
+
+Return ONLY a valid JSON array with no markdown formatting, no code fences, no extra text. Each object must have exactly these keys: "question" (string), "options" (array of 4 strings), "correctAnswer" (index 0-3 of correct option), "explanation" (string).
+
+Study Materials:
+${contextText}`;
 
     const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
