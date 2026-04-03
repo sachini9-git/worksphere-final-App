@@ -118,8 +118,9 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
                      setQuestions(parsed);
                      setViewMode('create');
                      setCurrentIndex(0);
-                     setSelectedAnswers(new Array(parsed.length).fill(null));
-                     setShowResults(false);
+                     // Pre-fill with correct answers so user sees them in review mode
+                     setSelectedAnswers(parsed.map((q: QuizQuestion) => q.correctAnswer));
+                     setShowResults(true);
                    } catch(e) { alert("Failed to load quiz."); }
                  }} className="p-5 bg-white border border-slate-200 rounded-2xl cursor-pointer hover:border-violet-400 hover:shadow-md transition-all group shadow-sm">
                    <div className="flex items-center gap-3 mb-2">
