@@ -27,7 +27,8 @@ const App: React.FC = () => {
         user, setUser, loadingSession, setLoadingSession,
         onboardingComplete, setOnboardingComplete, activeTab, setActiveTab,
         tasks, setTasks, documents, setDocuments, folders, setFolders,
-        sessions, setSessions, chatHistory, setChatHistory, addChatMessage
+        sessions, setSessions, chatHistory, setChatHistory, addChatMessage,
+        userXP, setUserXP
     } = useAppStore();
 
     // Focus Timer State (Lifted)
@@ -189,9 +190,12 @@ const App: React.FC = () => {
                         setOnboardingComplete(false);
                     }
 
-                    // Chat history is still local for now to save DB space, or we can load it
+                    // Chat history & XP are loaded locally
                     const loadedChat = localStorage.getItem(`workSphere_chat_${user.id}`);
                     if (loadedChat) setChatHistory(JSON.parse(loadedChat));
+                    
+                    const loadedXP = localStorage.getItem(`workSphere_xp_${user.id}`);
+                    if (loadedXP) setUserXP(parseInt(loadedXP, 10));
                 } catch (e) {
                     console.error("Failed to load data from Supabase", e);
                 } finally {
@@ -204,13 +208,13 @@ const App: React.FC = () => {
         }
     }, [user, dataLoadedForUserId]);
 
-    // Save Chat History (Local)
+    // Save Chat History & XP (Local)
     useEffect(() => {
         if (user) {
             localStorage.setItem(`workSphere_chat_${user.id}`, JSON.stringify(chatHistory));
+            localStorage.setItem(`workSphere_xp_${user.id}`, userXP.toString());
         }
-    }, [chatHistory, user]);
-
+    }, [chatHistory, userXP, user]);
 
 
     const handleOnboardingComplete = async (data: OnboardingData) => {
@@ -398,13 +402,8 @@ const App: React.FC = () => {
             const breakTime = focusConfig.breakDuration * 60;
             setFocusTimeLeft(breakTime);
 
-            // Auto-start if Focus Zone is active
-            if (isFocusZoneActive) {
-                setFocusEndTime(Date.now() + breakTime * 1000);
-            } else {
-                setIsFocusActive(false);
-                setFocusEndTime(null);
-            }
+            // Auto-transition to Break automatically
+            setFocusEndTime(Date.now() + breakTime * 1000);
         } else {
             // Break done
             sounds.playMotivationalMusic();
@@ -416,13 +415,8 @@ const App: React.FC = () => {
             const focusTime = focusConfig.focusDuration * 60;
             setFocusTimeLeft(focusTime);
 
-            // Auto-start if Focus Zone is active
-            if (isFocusZoneActive) {
-                setFocusEndTime(Date.now() + focusTime * 1000);
-            } else {
-                setIsFocusActive(false);
-                setFocusEndTime(null);
-            }
+            // Auto-transition back to Focus automatically
+            setFocusEndTime(Date.now() + focusTime * 1000);
         }
     };
 

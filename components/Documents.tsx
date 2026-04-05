@@ -32,6 +32,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
     const [activeDoc, setActiveDoc] = useState<Document | null>(null);
     const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [isUploading, setIsUploading] = useState(false);
 
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
@@ -90,7 +91,9 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const ext = file.name.split('.').pop()?.toLowerCase() || '';
+        setIsUploading(true);
+        try {
+            const ext = file.name.split('.').pop()?.toLowerCase() || '';
         const mime = file.type;
 
         const isBinary = (
@@ -163,7 +166,10 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
             };
             reader.readAsText(file);
         }
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            setIsUploading(false);
+        }
     };
 
     // Voice Dictation Logic
@@ -329,7 +335,16 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                 )}
 
                 {/* Content Area */}
-                <div className={`flex-1 overflow-y-auto ${isPanelOpen ? 'p-3' : 'p-6'} bg-slate-50/30`}>
+                <div className={`flex-1 overflow-y-auto ${isPanelOpen ? 'p-3' : 'p-6'} bg-slate-50/30 relative`}>
+                    {/* Uploading Overlay */}
+                    {isUploading && (
+                        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-6 text-center">
+                            <div className="w-16 h-16 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mb-4"></div>
+                            <h3 className="text-xl font-display font-black text-slate-800 mb-2">Extracting Document...</h3>
+                            <p className="text-slate-500 font-medium max-w-xs text-sm">Please wait while the AI parses your file for study content.</p>
+                        </div>
+                    )}
+                    
                     {viewMode === 'grid' ? (
                         <div className={`grid gap-4 perspective-[2000px] ${isPanelOpen ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
                             <AnimatePresence>
@@ -508,9 +523,11 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                 }} className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs rounded-full font-bold flex items-center gap-1 border border-emerald-100 hover:bg-emerald-100 transition-colors">
                                     <Download size={12} /> Open / Download
                                 </button>
-                                <button onClick={handleEdit} className="px-3 py-1 bg-violet-50 text-violet-600 text-xs rounded-full font-bold flex items-center gap-1 border border-violet-100 hover:bg-violet-100 transition-colors">
-                                    <Edit3 size={12} /> Edit
-                                </button>
+                                {activeDoc.type === 'note' && (
+                                    <button onClick={handleEdit} className="px-3 py-1 bg-violet-50 text-violet-600 text-xs rounded-full font-bold flex items-center gap-1 border border-violet-100 hover:bg-violet-100 transition-colors">
+                                        <Edit3 size={12} /> Edit
+                                    </button>
+                                )}
                                 <button
                                     onClick={handleSummarize}
                                     disabled={isSummarizing}
@@ -542,8 +559,8 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                     autoFocus
                                 />
 
-                                {/* Editor Toolbar with Voice Mode */}
-                                <div className="flex flex-wrap items-center gap-4 mb-4 bg-slate-50/80 p-2 rounded-xl w-fit border border-slate-100 shadow-sm">
+                                {/* Editor Toolbar */}
+                                <div className="sticky top-0 z-50 flex flex-wrap items-center gap-4 mb-4 bg-slate-50/95 backdrop-blur-md p-2 rounded-xl w-fit border border-slate-200 shadow-sm">
                                     <button
                                         onClick={isListening ? stopListening : startListening}
                                         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${isListening
@@ -598,13 +615,30 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                         <h3 className="text-sm font-bold text-indigo-900 mb-3 flex items-center gap-2">
                                             <span>✨ AI Summary</span>
                                         </h3>
-                                        <div className="text-sm text-indigo-800 leading-relaxed whitespace-pre-wrap">
+                                        <div className="text-sm text-indigo-800 leading-relaxed whitespace-pre-wrap mb-4">
                                             {summarizedText}
                                         </div>
+                                        <button
+                                            onClick={() => {
+                                                addDocument(`Summary: ${activeDoc.title}`, summarizedText, activeDoc.folder_id, 'note');
+                                                alert('Summary saved as a new Note!');
+                                            }}
+                                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
+                                        >
+                                            Save Summary as Note
+                                        </button>
                                     </div>
                                 )}
                                 <div className="prose prose-violet max-w-none text-slate-800 leading-relaxed text-lg font-medium bg-transparent">
-                                    <div dangerouslySetInnerHTML={{ __html: activeDoc.content }} />
+                                    {(activeDoc.type === 'note' || activeDoc.type === 'csv') ? (
+                                        <div dangerouslySetInnerHTML={{ __html: activeDoc.content }} />
+                                    ) : (
+                                        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center flex flex-col items-center">
+                                            <FileText className="text-slate-300 mb-3" size={32} />
+                                            <p className="text-slate-600 font-bold mb-1">Text Extracted for AI Use</p>
+                                            <p className="text-slate-400 text-sm max-w-sm mb-4">The contents of this file have been processed. You can now use the Summarize tool or generate Flashcards and Quizzes from it.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}

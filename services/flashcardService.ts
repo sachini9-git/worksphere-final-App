@@ -77,12 +77,10 @@ ${document.content}`;
 
     const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
-    // Clean markdown code blocks if the model accidentally returns them
     let rawText = response.text || '[]';
-    if (rawText.startsWith('```json')) {
-      rawText = rawText.replace('```json', '').replace('```', '');
-    } else if (rawText.startsWith('```')) {
-      rawText = rawText.replace(/```/g, '');
+    const jsonMatch = rawText.match(/\[([\s\S]*)\]/);
+    if (jsonMatch) {
+      rawText = jsonMatch[0];
     }
 
     const parsed = JSON.parse(rawText.trim());
@@ -159,12 +157,10 @@ ${contextText}`;
 
     const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
-    // Clean markdown code blocks
     let rawText = response.text || '[]';
-    if (rawText.startsWith('```json')) {
-      rawText = rawText.replace('```json', '').replace('```', '');
-    } else if (rawText.startsWith('```')) {
-      rawText = rawText.replace(/```/g, '');
+    const jsonMatch = rawText.match(/\[([\s\S]*)\]/);
+    if (jsonMatch) {
+      rawText = jsonMatch[0];
     }
 
     const parsed = JSON.parse(rawText.trim());

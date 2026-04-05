@@ -252,9 +252,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                 const resp = await generateAIResponse(prompt, []);
                 if (!mounted) return;
                 setAiTipText(resp);
-                if (!resp.includes("429") && !resp.includes("Error")) {
-                    setDashboardAiTip(resp);
-                }
+                // Even on error, cache it so we don't endlessly retry and hammer the API
+                setDashboardAiTip(resp.includes("429") ? "You're doing great! (AI Tips temporarily rate limited)" : resp);
             } catch (e) {
                 console.error('AI tip error', e);
             } finally {
@@ -513,7 +512,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-3">
                                 <h3 className="text-xl font-display font-black text-slate-800">Today's Tasks</h3>
-                                {todayCompletionPercentage === 100 && tasksDueToday.length > 0 && (
+                                {todayCompletionPercentage === 100 && tasksDueToday.length >= 3 && (
                                     <span className="bg-rose-100 text-rose-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-rose-200 flex items-center gap-1">
                                         <Trophy size={10} /> Champion
                                     </span>
@@ -536,7 +535,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                         {/* Left: Progress Ring */}
                         <div className="flex flex-col items-center justify-center flex-shrink-0">
                             <div className="relative flex items-center justify-center w-[160px] h-[160px]">
-                                {todayCompletionPercentage === 100 && tasksDueToday.length > 0 && (
+                                {todayCompletionPercentage === 100 && tasksDueToday.length >= 3 && (
                                     <motion.div
                                         initial={{ scale: 0, opacity: 0, y: 20 }}
                                         animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 1], y: 0 }}
