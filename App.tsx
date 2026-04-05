@@ -128,9 +128,11 @@ const App: React.FC = () => {
         return () => subscription.unsubscribe();
     }, []);
 
+    const [dataLoadedForUserId, setDataLoadedForUserId] = useState<string | null>(null);
+
     // Load Data on User Login
     useEffect(() => {
-        if (user) {
+        if (user && dataLoadedForUserId !== user.id) {
             const loadData = async () => {
                 try {
                     // Fetch Tasks
@@ -192,11 +194,15 @@ const App: React.FC = () => {
                     if (loadedChat) setChatHistory(JSON.parse(loadedChat));
                 } catch (e) {
                     console.error("Failed to load data from Supabase", e);
+                } finally {
+                    setDataLoadedForUserId(user.id);
                 }
             };
             loadData();
+        } else if (!user) {
+            setDataLoadedForUserId(null);
         }
-    }, [user]);
+    }, [user, dataLoadedForUserId]);
 
     // Save Chat History (Local)
     useEffect(() => {
@@ -579,6 +585,18 @@ const App: React.FC = () => {
 
     if (!user) {
         return <Auth />;
+    }
+
+    if (user && dataLoadedForUserId !== user.id) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#fafafa] relative overflow-hidden">
+                <div className="absolute top-1/4 -left-32 w-96 h-96 bg-violet-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+                <div className="absolute top-1/3 -right-32 w-96 h-96 bg-fuchsia-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+                <div className="w-16 h-16 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mb-6 relative z-10"></div>
+                <h2 className="text-2xl font-display font-black text-slate-800 mb-2 relative z-10">Preparing your workspace...</h2>
+                <p className="text-slate-500 font-medium relative z-10">We're getting things ready for {user.name || 'you'}.</p>
+            </div>
+        );
     }
 
     if (!onboardingComplete) {
