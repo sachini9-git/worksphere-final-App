@@ -454,6 +454,17 @@ const App: React.FC = () => {
         }
     }, [isFocusActive, focusMode]);
 
+    // Focus Zone Victory Trigger
+    useEffect(() => {
+        if (isFocusZoneActive && focusZoneTimeLeft <= 0) {
+            setIsFocusZoneActive(false);
+            sounds.playSuccessLevelUp();
+            if (Notification.permission === 'granted') {
+                new Notification("🎉 Daily Focus Goal Achieved!", { body: "You are an absolute Champion! You've hit your deep work target for today." });
+            }
+        }
+    }, [isFocusZoneActive, focusZoneTimeLeft]);
+
     // Focus Timer Helpers
     const toggleTimer = () => {
         sounds.playClick();

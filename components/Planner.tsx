@@ -22,8 +22,12 @@ export const Planner: React.FC<PlannerProps> = ({ tasks, updateTask }) => {
     // Filter to only show pending tasks
     const pendingTasks = tasks.filter(t => t.status !== 'done');
     
-    // Find tasks that are not yet in today's schedule
-    const todayStr = new Date().toISOString().split('T')[0];
+    // Find tasks that are not yet in today's schedule using LOCAL time
+    const getLocalFormattedDate = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+    const todayStr = getLocalFormattedDate();
     const todaysBlocks = schedule.filter(b => b.date === todayStr);
     
     const unscheduledTasks = pendingTasks.filter(t => !todaysBlocks.some(b => b.taskId === t.id));

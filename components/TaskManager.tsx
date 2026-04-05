@@ -188,14 +188,17 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
                 <div key={task.id} className="bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl border-2 border-violet-500 z-10 animate-in fade-in zoom-in-95 mb-4">
                     <div className="flex justify-between mb-3"><h4 className="font-display font-bold text-slate-800 text-sm">Edit Task</h4><button onClick={() => setEditingTaskId(null)}><X size={16} className="text-slate-400 hover:text-slate-600 transition-colors" /></button></div>
                     <input type="text" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} className="w-full bg-slate-50/50 border border-slate-200 rounded-lg p-2 mb-3 text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
-                    <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="flex flex-col gap-2 mb-3">
                         <div>
                             <label className="text-xs text-slate-400 font-bold block mb-1">Due Date</label>
-                            <input type="date" value={editForm.date} onChange={e => setEditForm({ ...editForm, date: e.target.value })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-full" />
+                            <input type="date" value={editForm.date || ''} onChange={e => setEditForm({ ...editForm, date: e.target.value })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-full" />
                         </div>
                         <div>
                             <label className="text-xs text-slate-400 font-bold block mb-1">Reminder</label>
-                            <input type="datetime-local" value={editForm.reminder} onChange={e => setEditForm({ ...editForm, reminder: e.target.value })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-full" />
+                            <div className="flex gap-2">
+                                <input type="date" value={editForm.reminder ? editForm.reminder.slice(0, 10) : ''} onChange={e => setEditForm({ ...editForm, reminder: e.target.value ? `${e.target.value}T${editForm.reminder ? editForm.reminder.slice(11, 16) : '09:00'}` : '' })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-1/2" />
+                                <input type="time" value={editForm.reminder ? editForm.reminder.slice(11, 16) : ''} onChange={e => setEditForm({ ...editForm, reminder: e.target.value ? `${editForm.reminder ? editForm.reminder.slice(0, 10) : getTodayString()}T${e.target.value}` : '' })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-1/2" />
+                            </div>
                         </div>
                     </div>
                     <div className="flex justify-end"><button onClick={handleSaveEdit} className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-md shadow-violet-500/20 hover:shadow-violet-500/40 transition-all"><Save size={12} /> Save</button></div>
