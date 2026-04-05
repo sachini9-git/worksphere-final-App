@@ -246,28 +246,15 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
 
     const isPanelOpen = !!(activeDoc || isCreating || isEditing);
     
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    // Rich Text Editor State & Handlers
+    const contentEditableRef = useRef<HTMLDivElement>(null);
 
-    const insertFormat = (formatType: string) => {
-        if (!textareaRef.current) return;
-        const start = textareaRef.current.selectionStart;
-        const end = textareaRef.current.selectionEnd;
-        const selectedText = newContent.substring(start, end);
-        
-        let replacement = '';
-        if (formatType === 'bold') replacement = `**${selectedText || 'bold text'}**`;
-        else if (formatType === 'italic') replacement = `_${selectedText || 'italic text'}_`;
-        else if (formatType === 'highlight') replacement = `<mark>${selectedText || 'highlighted'}</mark>`;
-        else if (formatType === 'bullet') replacement = `\n- ${selectedText || 'list item'}`;
-        
-        const newText = newContent.substring(0, start) + replacement + newContent.substring(end);
-        setNewContent(newText);
-        
-        setTimeout(() => {
-            textareaRef.current?.focus();
-            const cursorOffset = formatType === 'bullet' ? 3 : formatType === 'highlight' ? 6 : formatType === 'bold' ? 2 : 1;
-            textareaRef.current?.setSelectionRange(start + cursorOffset, start + replacement.length - cursorOffset);
-        }, 0);
+    const handleFormat = (command: string, value?: string) => {
+        document.execCommand(command, false, value);
+        if (contentEditableRef.current) {
+            setNewContent(contentEditableRef.current.innerHTML);
+            contentEditableRef.current.focus();
+        }
     };
 
     return (
@@ -512,10 +499,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                         const file = await localforage.getItem<File>(`worksphere-file-${activeDoc.title}`);
                                         if (file) {
                                             const url = URL.createObjectURL(file);
-                                            const a = document.createElement('a');
-                                            a.href = url;
-                                            a.download = activeDoc.title;
-                                            a.click();
+                                            window.open(url, '_blank');
                                             setTimeout(() => URL.revokeObjectURL(url), 1000);
                                         } else {
                                             alert('Original file blob not found. Please re-upload this file if you need to download it natively.');
@@ -575,19 +559,25 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                     <div className="w-px h-5 bg-slate-300"></div>
                                     
                                     <div className="flex items-center gap-1">
-                                        <button onClick={() => insertFormat('bold')} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 rounded transition-colors text-sm" title="Bold (Ctrl+B)">B</button>
-                                        <button onClick={() => insertFormat('italic')} className="px-2.5 py-1 text-slate-600 italic font-serif hover:bg-slate-200 rounded transition-colors text-sm" title="Italic (Ctrl+I)">I</button>
-                                        <button onClick={() => insertFormat('highlight')} className="px-2 p-1 text-slate-600 hover:bg-slate-200 rounded transition-colors" title="Highlight"><span className="bg-yellow-200 px-1 rounded text-xs -translate-y-px inline-block font-bold">H</span></button>
-                                        <button onClick={() => insertFormat('bullet')} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 rounded transition-colors text-sm" title="Bullet List">•</button>
+                                        <button onClick={() => handleFormat('bold')} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 rounded transition-colors text-sm" title="Bold (Ctrl+B)">B</button>
+                                        <button onClick={() => handleFormat('italic')} className="px-2.5 py-1 text-slate-600 italic font-serif hover:bg-slate-200 rounded transition-colors text-sm" title="Italic (Ctrl+I)">I</button>
+                                        <button onClick={() => handleFormat('hiliteColor', 'yellow')} className="px-2 p-1 text-slate-600 hover:bg-slate-200 rounded transition-colors" title="Highlight"><span className="bg-yellow-200 px-1 rounded text-xs -translate-y-px inline-block font-bold">H</span></button>
+                                        <button onClick={() => handleFormat('insertUnorderedList')} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 rounded transition-colors text-sm" title="Bullet List">•</button>
                                     </div>
                                 </div>
 
-                                <textarea
-                                    ref={textareaRef}
-                                    className="flex-1 w-full resize-none outline-none border-none text-lg text-slate-600 leading-relaxed bg-transparent font-medium p-2 focus:bg-slate-50/50 rounded-xl transition-colors"
-                                    placeholder="Start typing, format your notes, or click 'Dictate' to speak..."
-                                    value={newContent}
-                                    onChange={e => setNewContent(e.target.value)}
+                                <style>{`
+                                    .editor-content:empty:before { content: attr(data-placeholder); color: #94a3b8; pointer-events: none; }
+                                    .editor-content:focus { background-color: rgba(248, 250, 252, 0.5); }
+                                `}</style>
+
+                                <div
+                                    ref={contentEditableRef}
+                                    contentEditable
+                                    className="flex-1 w-full outline-none border-none text-lg text-slate-800 leading-relaxed bg-transparent font-medium p-3 rounded-xl transition-colors overflow-y-auto editor-content"
+                                    data-placeholder="Start typing, format your notes, or click 'Dictate' to speak..."
+                                    dangerouslySetInnerHTML={{ __html: newContent }}
+                                    onInput={(e) => setNewContent(e.currentTarget.innerHTML)}
                                 />
                                 <div className="flex justify-end pt-6 border-t border-slate-100">
                                     <button onClick={handleSave} className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all">
@@ -613,35 +603,8 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                         </div>
                                     </div>
                                 )}
-                                <div className="prose prose-violet max-w-none text-slate-700 leading-relaxed text-lg font-medium bg-transparent">
-                                    <style>{`
-                                        .prose mark { background-color: #fef08a; padding: 0.1em 0.3em; border-radius: 0.25rem; font-weight: bold; }
-                                    `}</style>
-                                    <ReactMarkdown 
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            h1: ({node, ...props}) => <h1 className="text-3xl font-bold mt-6 mb-4 text-violet-900" {...props} />,
-                                            h2: ({node, ...props}) => <h2 className="text-2xl font-bold mt-5 mb-3 text-violet-800" {...props} />,
-                                            h3: ({node, ...props}) => <h3 className="text-xl font-bold mt-4 mb-2 text-violet-700" {...props} />,
-                                            ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4" {...props} />,
-                                            ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4" {...props} />,
-                                            li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                                            strong: ({node, ...props}) => <strong className="font-extrabold text-slate-900" {...props} />,
-                                            a: ({node, ...props}) => <a className="text-violet-600 hover:text-violet-800 underline" {...props} />,
-                                            p: ({node, children}) => {
-                                                if (typeof children === 'string' && children.includes('<mark>')) {
-                                                    // ReactMarkdown strips arbitrary custom HTML by default in some setups unless rehype-raw is used.
-                                                    // For simple <mark> tags inside markdown we can do a quick manual text replacement to render them 
-                                                    // if we don't want to install rehype-raw. We'll use dangerouslySetInnerHTML here safely.
-                                                    const formatted = children.replace(/<mark>(.*?)<\/mark>/g, '<mark>$1</mark>');
-                                                    return <p className="mb-4" dangerouslySetInnerHTML={{__html: formatted}} />;
-                                                }
-                                                return <p className="mb-4">{children}</p>;
-                                            }
-                                        }}
-                                    >
-                                        {activeDoc.content.replace(/<mark>/g, '<mark>').replace(/<\/mark>/g, '</mark>')}
-                                    </ReactMarkdown>
+                                <div className="prose prose-violet max-w-none text-slate-800 leading-relaxed text-lg font-medium bg-transparent">
+                                    <div dangerouslySetInnerHTML={{ __html: activeDoc.content }} />
                                 </div>
                             </div>
                         )}

@@ -328,7 +328,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
        `}</style>
 
             {/* Top Bar: Input & Filters */}
-            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative z-20">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-2xl text-white shadow-lg shadow-violet-500/30">
