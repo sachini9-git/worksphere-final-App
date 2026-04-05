@@ -78,7 +78,21 @@ export const TaskReminders: React.FC<TaskRemindersProps> = ({
     }
   };
 
-  if (reminders.length === 0) return null;
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (reminders.length > 0) {
+      setIsVisible(true);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 8000);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [reminders]);
+
+  if (reminders.length === 0 || !isVisible) return null;
 
   // Group by urgency level for better UX
   const criticalReminders = reminders.filter(
@@ -148,7 +162,7 @@ export const TaskReminders: React.FC<TaskRemindersProps> = ({
   };
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 max-h-96 overflow-y-auto space-y-3 z-40 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 p-4">
+    <div className="fixed bottom-4 right-4 w-96 max-h-96 overflow-y-auto space-y-3 z-40 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 p-4 animate-in slide-in-from-right-8 fade-in fade-out duration-500">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-200">
         <Bell size={18} className="text-amber-600 animate-bounce" />

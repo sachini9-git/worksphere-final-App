@@ -314,13 +314,15 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
     return (
         <div className="flex flex-col h-full gap-8">
             <style>{`
-         input[type="date"]::-webkit-calendar-picker-indicator {
+         input[type="date"]::-webkit-calendar-picker-indicator,
+         input[type="time"]::-webkit-calendar-picker-indicator {
            cursor: pointer;
            opacity: 0.6;
            filter: invert(0.4) sepia(1) saturate(2) hue-rotate(200deg);
            transition: opacity 0.2s;
          }
-         input[type="date"]::-webkit-calendar-picker-indicator:hover {
+         input[type="date"]::-webkit-calendar-picker-indicator:hover,
+         input[type="time"]::-webkit-calendar-picker-indicator:hover {
            opacity: 1;
          }
        `}</style>
@@ -441,12 +443,34 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
                                             {newTaskReminder && <button type="button" onClick={() => { setNewTaskReminder(''); setShowReminderInput(false); }} className="text-[10px] font-bold text-rose-500 hover:bg-rose-50 px-2 py-1 rounded-lg">Clear</button>}
                                         </div>
 
-                                        <input
-                                            type="datetime-local"
-                                            value={newTaskReminder}
-                                            onChange={(e) => setNewTaskReminder(e.target.value)}
-                                            className="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 mb-4 transition-all"
-                                        />
+                                        {newTaskReminder && (
+                                            <div className="text-center mb-3 text-xs font-bold text-violet-600 bg-violet-50 py-1.5 rounded-lg border border-violet-100">
+                                                {format(new Date(newTaskReminder), 'MMM d, yyyy - h:mm a')}
+                                            </div>
+                                        )}
+                                        <div className="flex gap-2 mb-4">
+                                            <input
+                                                type="date"
+                                                value={newTaskReminder ? newTaskReminder.slice(0, 10) : ''}
+                                                onChange={(e) => {
+                                                    const date = e.target.value;
+                                                    const time = newTaskReminder ? newTaskReminder.slice(11, 16) : '09:00';
+                                                    if (date) setNewTaskReminder(`${date}T${time}`);
+                                                }}
+                                                min={getTodayString()}
+                                                className="w-1/2 bg-slate-50/50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
+                                            />
+                                            <input
+                                                type="time"
+                                                value={newTaskReminder ? newTaskReminder.slice(11, 16) : ''}
+                                                onChange={(e) => {
+                                                    const time = e.target.value;
+                                                    const date = newTaskReminder ? newTaskReminder.slice(0, 10) : getTodayString();
+                                                    if (time) setNewTaskReminder(`${date}T${time}`);
+                                                }}
+                                                className="w-1/2 bg-slate-50/50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium text-slate-700 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
+                                            />
+                                        </div>
 
                                         <div className="grid grid-cols-2 gap-2">
                                             <button type="button" onClick={() => setQuickReminder(1)} className="bg-slate-50 hover:bg-violet-50 text-slate-500 hover:text-violet-600 text-[10px] font-bold py-2 rounded-lg transition-colors">In 1 Hour</button>

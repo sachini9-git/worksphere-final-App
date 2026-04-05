@@ -6,6 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 import localforage from 'localforage';
+import * as xlsx from 'xlsx';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { extractTextFromPptx } from '../services/pptxService';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -125,6 +129,16 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                     const arrayBuffer = await file.arrayBuffer();
                     const result = await mammoth.extractRawText({ arrayBuffer });
                     if (result.value.trim()) extractedText = result.value;
+                } else if (docType === 'pptx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const resultText = await extractTextFromPptx(arrayBuffer);
+                    if (resultText.trim()) extractedText = resultText;
+                } else if (docType === 'xlsx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const workbook = xlsx.read(arrayBuffer, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const resultText = xlsx.utils.sheet_to_csv(sheet);
+                    if (resultText.trim()) extractedText = resultText;
                 } else {
                     extractedText = `[${label} — ${file.name}]\n\nFile attached safely! 🚀 Click "Edit" to paste your own notes here so the AI Tutor can read them.`;
                 }
@@ -231,6 +245,30 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
     };
 
     const isPanelOpen = !!(activeDoc || isCreating || isEditing);
+    
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const insertFormat = (formatType: string) => {
+        if (!textareaRef.current) return;
+        const start = textareaRef.current.selectionStart;
+        const end = textareaRef.current.selectionEnd;
+        const selectedText = newContent.substring(start, end);
+        
+        let replacement = '';
+        if (formatType === 'bold') replacement = `**${selectedText || 'bold text'}**`;
+        else if (formatType === 'italic') replacement = `_${selectedText || 'italic text'}_`;
+        else if (formatType === 'highlight') replacement = `<mark>${selectedText || 'highlighted'}</mark>`;
+        else if (formatType === 'bullet') replacement = `\n- ${selectedText || 'list item'}`;
+        
+        const newText = newContent.substring(0, start) + replacement + newContent.substring(end);
+        setNewContent(newText);
+        
+        setTimeout(() => {
+            textareaRef.current?.focus();
+            const cursorOffset = formatType === 'bullet' ? 3 : formatType === 'highlight' ? 6 : formatType === 'bold' ? 2 : 1;
+            textareaRef.current?.setSelectionRange(start + cursorOffset, start + replacement.length - cursorOffset);
+        }, 0);
+    };
 
     return (
         <div className="flex h-full gap-4">
@@ -521,23 +559,33 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                 />
 
                                 {/* Editor Toolbar with Voice Mode */}
-                                <div className="flex items-center gap-2 mb-4 bg-slate-50/80 p-2 rounded-xl w-fit border border-slate-100">
+                                <div className="flex flex-wrap items-center gap-4 mb-4 bg-slate-50/80 p-2 rounded-xl w-fit border border-slate-100 shadow-sm">
                                     <button
                                         onClick={isListening ? stopListening : startListening}
                                         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${isListening
                                                 ? 'bg-rose-500 text-white animate-pulse'
-                                                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 shadow-sm'
+                                                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                                             }`}
                                         title="Voice Dictation"
                                     >
                                         {isListening ? <StopCircle size={14} /> : <Mic size={14} />}
                                         {isListening ? 'Listening...' : voiceError || 'Dictate'}
                                     </button>
+                                    
+                                    <div className="w-px h-5 bg-slate-300"></div>
+                                    
+                                    <div className="flex items-center gap-1">
+                                        <button onClick={() => insertFormat('bold')} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 rounded transition-colors text-sm" title="Bold (Ctrl+B)">B</button>
+                                        <button onClick={() => insertFormat('italic')} className="px-2.5 py-1 text-slate-600 italic font-serif hover:bg-slate-200 rounded transition-colors text-sm" title="Italic (Ctrl+I)">I</button>
+                                        <button onClick={() => insertFormat('highlight')} className="px-2 p-1 text-slate-600 hover:bg-slate-200 rounded transition-colors" title="Highlight"><span className="bg-yellow-200 px-1 rounded text-xs -translate-y-px inline-block font-bold">H</span></button>
+                                        <button onClick={() => insertFormat('bullet')} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 rounded transition-colors text-sm" title="Bullet List">•</button>
+                                    </div>
                                 </div>
 
                                 <textarea
+                                    ref={textareaRef}
                                     className="flex-1 w-full resize-none outline-none border-none text-lg text-slate-600 leading-relaxed bg-transparent font-medium p-2 focus:bg-slate-50/50 rounded-xl transition-colors"
-                                    placeholder="Start typing or click 'Dictate' to speak..."
+                                    placeholder="Start typing, format your notes, or click 'Dictate' to speak..."
                                     value={newContent}
                                     onChange={e => setNewContent(e.target.value)}
                                 />
@@ -565,8 +613,35 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                         </div>
                                     </div>
                                 )}
-                                <div className="whitespace-pre-wrap text-slate-700 leading-relaxed text-lg font-medium">
-                                    {activeDoc.content}
+                                <div className="prose prose-violet max-w-none text-slate-700 leading-relaxed text-lg font-medium bg-transparent">
+                                    <style>{`
+                                        .prose mark { background-color: #fef08a; padding: 0.1em 0.3em; border-radius: 0.25rem; font-weight: bold; }
+                                    `}</style>
+                                    <ReactMarkdown 
+                                        remarkPlugins={[remarkGfm]}
+                                        components={{
+                                            h1: ({node, ...props}) => <h1 className="text-3xl font-bold mt-6 mb-4 text-violet-900" {...props} />,
+                                            h2: ({node, ...props}) => <h2 className="text-2xl font-bold mt-5 mb-3 text-violet-800" {...props} />,
+                                            h3: ({node, ...props}) => <h3 className="text-xl font-bold mt-4 mb-2 text-violet-700" {...props} />,
+                                            ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4" {...props} />,
+                                            ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4" {...props} />,
+                                            li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                                            strong: ({node, ...props}) => <strong className="font-extrabold text-slate-900" {...props} />,
+                                            a: ({node, ...props}) => <a className="text-violet-600 hover:text-violet-800 underline" {...props} />,
+                                            p: ({node, children}) => {
+                                                if (typeof children === 'string' && children.includes('<mark>')) {
+                                                    // ReactMarkdown strips arbitrary custom HTML by default in some setups unless rehype-raw is used.
+                                                    // For simple <mark> tags inside markdown we can do a quick manual text replacement to render them 
+                                                    // if we don't want to install rehype-raw. We'll use dangerouslySetInnerHTML here safely.
+                                                    const formatted = children.replace(/<mark>(.*?)<\/mark>/g, '<mark>$1</mark>');
+                                                    return <p className="mb-4" dangerouslySetInnerHTML={{__html: formatted}} />;
+                                                }
+                                                return <p className="mb-4">{children}</p>;
+                                            }
+                                        }}
+                                    >
+                                        {activeDoc.content.replace(/<mark>/g, '<mark>').replace(/<\/mark>/g, '</mark>')}
+                                    </ReactMarkdown>
                                 </div>
                             </div>
                         )}
