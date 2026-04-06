@@ -122,19 +122,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
         { name: 'To Do', value: pendingTasks },
     ];
 
-    const todayDate = new Date();
-    const tasksDueToday = tasks.filter(t => {
-        // Fallback to due_date if scheduled_date hasn't been set by Planner
+    // Weekly Task Logic: Include tasks due this week OR completed this week OR overdue undone tasks
+    const tasksForThisWeek = tasks.filter(t => {
+        const status = t.status || 'todo';
         const targetDate = t.scheduled_date || t.due_date;
         if (!targetDate) return false;
-        return isSameDay(new Date(targetDate), todayDate);
+        const dt = new Date(targetDate);
+        
+        // 1. Is it scheduled/due within the week interval?
+        const inInterval = isWithinInterval(dt, { start: startOfDay(selectedWeekStart), end: endOfDay(selectedWeekEnd) });
+        
+        // 2. Was it completed within the week interval?
+        const comp = (t as any).completed_at || null;
+        const compInInterval = comp ? isWithinInterval(new Date(comp), { start: startOfDay(selectedWeekStart), end: endOfDay(selectedWeekEnd) }) : false;
+        
+        // 3. Is it an undone task from a PREVIOUS week (Backlog)?
+        // We only show backlog in the 'current' week view (weekOffset >= 0) to avoid cluttering historical weeks.
+        const isBacklog = status !== 'done' && dt < startOfDay(selectedWeekStart) && weekOffset >= 0;
+
+        return inInterval || compInInterval || isBacklog;
     });
 
-    const completedTasksToday = tasksDueToday.filter(t => t.status === 'done').length;
+    const completedTasksThisWeekActual = tasksForThisWeek.filter(t => t.status === 'done').length;
 
-    const todayCompletionPercentage = tasksDueToday.length > 0
-        ? Math.round((completedTasksToday / tasksDueToday.length) * 100)
-        : 0;
+    // Denominator is either the actual task count or 7 (the baseline goal), whichever is higher.
+    // This ensures that completing 1 task out of 1 doesn't immediately show 100%.
+    const WEEKLY_GOAL_BASELINE = 7;
+    const weeklyDenominator = Math.max(tasksForThisWeek.length, WEEKLY_GOAL_BASELINE);
+    
+    const weeklyCompletionPercentage = Math.round((completedTasksThisWeekActual / weeklyDenominator) * 100);
+
+    // Productivity Ring Logic: Use the weekly percentage
+    const todayCompletionPercentage = weeklyCompletionPercentage;
+    const completedTasksToday = completedTasksThisWeekActual; // Rename for UI compatibility or update UI
+    const tasksDueToday = tasksForThisWeek; 
+
 
     const COLORS = ['#8b5cf6', '#e2e8f0'];
 
@@ -511,23 +533,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                     <div className="flex justify-between items-center mb-6 relative z-10">
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-3">
-                                <h3 className="text-xl font-display font-black text-slate-800">Today's Tasks</h3>
-                                {todayCompletionPercentage === 100 && tasksDueToday.length >= 3 && (
+                                <h3 className="text-xl font-display font-black text-slate-800">Weekly Progress</h3>
+                                {weeklyCompletionPercentage === 100 && (
                                     <span className="bg-rose-100 text-rose-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-rose-200 flex items-center gap-1">
                                         <Trophy size={10} /> Champion
                                     </span>
                                 )}
                             </div>
-                            <p className="text-xs font-bold text-slate-400">Scheduled for today</p>
+                            <p className="text-xs font-bold text-slate-400">Target: {weeklyDenominator} tasks this week</p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]"></span>
-                                <span className="text-xs font-bold text-slate-500">Done ({completedTasksToday})</span>
+                                <span className="text-xs font-bold text-slate-500">Done ({completedTasksThisWeekActual})</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full bg-slate-200"></span>
-                                <span className="text-xs font-bold text-slate-500">Pending ({tasksDueToday.length - completedTasksToday})</span>
+                                <span className="text-xs font-bold text-slate-500">Goal ({weeklyDenominator})</span>
                             </div>
                         </div>
                     </div>
@@ -535,7 +557,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                         {/* Left: Progress Ring */}
                         <div className="flex flex-col items-center justify-center flex-shrink-0">
                             <div className="relative flex items-center justify-center w-[160px] h-[160px]">
-                                {todayCompletionPercentage === 100 && tasksDueToday.length >= 3 && (
+                                {weeklyCompletionPercentage === 100 && tasksForThisWeek.length >= 3 && (
                                     <motion.div
                                         initial={{ scale: 0, opacity: 0, y: 20 }}
                                         animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 1], y: 0 }}
@@ -580,7 +602,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                                     >
                                         {todayCompletionPercentage}<span className="text-lg text-slate-400 font-bold">%</span>
                                     </motion.span>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Productivity</span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Weekly Goal</span>
                                 </div>
                             </div>
                         </div>
@@ -592,8 +614,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                                     <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-3 border border-slate-100">
                                         <Calendar size={24} className="text-slate-300" />
                                     </div>
-                                    <p className="text-sm font-bold text-slate-400">No tasks scheduled for today</p>
-                                    <p className="text-xs text-slate-300 mt-1">Use the Planner to schedule tasks</p>
+                                    <p className="text-sm font-bold text-slate-400">No tasks for this week</p>
+                                    <p className="text-xs text-slate-300 mt-1">Add tasks to see your progress</p>
                                 </div>
                             ) : (
                                 <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar" style={{ maxHeight: '300px' }}>
@@ -617,11 +639,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                                                 {task.status === 'done' && <CheckCircle size={14} />}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className={`text-sm font-bold truncate ${
-                                                    task.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-700'
-                                                }`}>
-                                                    {task.title}
-                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className={`text-sm font-bold truncate ${
+                                                        task.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-700'
+                                                    }`}>
+                                                        {task.title}
+                                                    </p>
+                                                    {task.status !== 'done' && (task.scheduled_date || task.due_date) && new Date(task.scheduled_date || task.due_date!) < startOfDay(selectedWeekStart) && (
+                                                        <span className="flex-shrink-0 bg-rose-50 text-[9px] font-black text-rose-500 px-1.5 py-0.5 rounded border border-rose-100 uppercase tracking-tighter">Backlog</span>
+                                                    )}
+                                                </div>
                                             </div>
                                             <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex-shrink-0 ${
                                                 task.priority === 'high'

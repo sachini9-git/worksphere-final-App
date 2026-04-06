@@ -14,7 +14,7 @@ import { Planner } from './components/Planner';
 import { Onboarding } from './components/Onboarding';
 import { Auth } from './components/Auth';
 import { supabase } from './services/supabaseClient';
-import { User, Task, Document, FocusSession, OnboardingData, ChatMessage, TaskCategory, Folder, DocumentType, TaskPriority } from './types';
+import { User, Task, Document, FocusSession, OnboardingData, ChatMessage, TaskCategory, Folder, DocumentType, TaskPriority, SubTask } from './types';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import { useAppStore } from './store/appStore';
 import { sounds } from './utils/sounds';
@@ -140,10 +140,11 @@ const App: React.FC = () => {
                     const { data: tasksData } = await supabase.from('tasks').select('*').eq('user_id', user.id);
                     if (tasksData) {
                         const parsedTasks = tasksData.map(t => {
-                            let category = 'Study';
-                            let subtasks = [];
-                            let completed_at = null;
-                            let scheduled_date = undefined;
+                            let category: TaskCategory = 'Study';
+                            let subtasks: SubTask[] = [];
+                            let completed_at: string | null = null;
+                            let scheduled_date: string | undefined = undefined;
+                            
                             if (t.description) {
                                 try {
                                     const parsed = JSON.parse(t.description);
@@ -152,10 +153,18 @@ const App: React.FC = () => {
                                     completed_at = parsed.completed_at || null;
                                     scheduled_date = parsed.scheduled_date || undefined;
                                 } catch (e) {
-                                    // Ignore
+                                    console.error("Error parsing task description JSON:", e);
                                 }
                             }
-                            return { ...t, category, subtasks, completed_at, scheduled_date };
+                            // Ensure we prefer the column values for status and priority, 
+                            // and the parsed values for our extended fields.
+                            return { 
+                                ...t, 
+                                category, 
+                                subtasks, 
+                                completed_at, 
+                                scheduled_date 
+                            } as Task;
                         });
                         setTasks(parsedTasks);
                     }
@@ -276,20 +285,21 @@ const App: React.FC = () => {
     };
 
     const updateTask = async (updatedTask: Task) => {
-        const { category, subtasks, scheduled_date, ...rest } = updatedTask;
+        const { category, subtasks, scheduled_date, id, user_id, created_at, ...rest } = updatedTask;
 
         // Preserve completed_at or set if newly done
         const existing = tasks.find(t => t.id === updatedTask.id);
-        let existingCompleted = null;
-        if (existing && (existing as any).completed_at) existingCompleted = (existing as any).completed_at;
+        let existingCompleted = (existing as any)?.completed_at || null;
 
         const descriptionObj: any = { category, subtasks, scheduled_date };
         if (updatedTask.status === 'done') {
             descriptionObj.completed_at = existingCompleted || new Date().toISOString();
+        } else {
+            descriptionObj.completed_at = null;
         }
 
-        // OPTIMISTIC UI UPDATE: Instantly update state for flawless Drag & Drop
-        const optimisticTask = { ...updatedTask, category, subtasks, scheduled_date, completed_at: descriptionObj.completed_at || null };
+        // OPTIMISTIC UI UPDATE
+        const optimisticTask = { ...updatedTask, category, subtasks, scheduled_date, completed_at: descriptionObj.completed_at };
         setTasks(tasks.map(t => t.id === updatedTask.id ? optimisticTask : t));
 
         const dbTask = {
@@ -297,14 +307,23 @@ const App: React.FC = () => {
             description: JSON.stringify(descriptionObj)
         };
 
+        console.log("Saving Task to DB:", { id: updatedTask.id, dbTask });
+
         const { data, error } = await supabase.from('tasks').update(dbTask).eq('id', updatedTask.id).select().single();
+        
         if (error) {
-            console.error("Error updating task:", error);
-            // Optionally: revert state here if needed
+            console.error("Error updating task in Supabase:", error);
+            // Optionally revert: setTasks(tasks);
         } else if (data) {
-            // Re-sync with actual DB data just in case, using latest state to prevent stale closures
+            // Re-sync with actual DB data
             const currentTasks = useAppStore.getState().tasks;
-            setTasks(currentTasks.map(t => t.id === updatedTask.id ? { ...data, category, subtasks, scheduled_date, completed_at: descriptionObj.completed_at || null } : t));
+            setTasks(currentTasks.map(t => t.id === updatedTask.id ? { 
+                ...data, 
+                category, 
+                subtasks, 
+                scheduled_date, 
+                completed_at: descriptionObj.completed_at 
+            } as Task : t));
         }
     };
 
