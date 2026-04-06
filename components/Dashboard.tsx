@@ -145,12 +145,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
 
     const completedTasksThisWeekActual = tasksForThisWeek.filter(t => t.status === 'done').length;
 
-    // Denominator is either the actual task count or 7 (the baseline goal), whichever is higher.
-    // This ensures that completing 1 task out of 1 doesn't immediately show 100%.
-    const WEEKLY_GOAL_BASELINE = 7;
-    const weeklyDenominator = Math.max(tasksForThisWeek.length, WEEKLY_GOAL_BASELINE);
-    
-    const weeklyCompletionPercentage = Math.round((completedTasksThisWeekActual / weeklyDenominator) * 100);
+    // Refined Productivity Calculation: Based on actual scheduled tasks, not a baseline
+    // If user schedules 10 tasks and completes 10, show 100%
+    // If user schedules 10 tasks and completes 5, show 50%
+    // If no tasks scheduled, show 0%
+    const weeklyDenominator = tasksForThisWeek.length > 0 ? tasksForThisWeek.length : 1;
+    const weeklyCompletionPercentage = tasksForThisWeek.length > 0 
+        ? Math.round((completedTasksThisWeekActual / weeklyDenominator) * 100)
+        : 0;
 
     // Productivity Ring Logic: Use the weekly percentage
     const todayCompletionPercentage = weeklyCompletionPercentage;

@@ -304,10 +304,11 @@ const App: React.FC = () => {
 
         const dbTask = {
             ...rest,
-            description: JSON.stringify(descriptionObj)
+            description: JSON.stringify(descriptionObj),
+            status: updatedTask.status
         };
 
-        console.log("Saving Task to DB:", { id: updatedTask.id, dbTask });
+        console.log("Saving Task to DB:", { id: updatedTask.id, dbTask, completedAt: descriptionObj.completed_at });
 
         const { data, error } = await supabase.from('tasks').update(dbTask).eq('id', updatedTask.id).select().single();
         

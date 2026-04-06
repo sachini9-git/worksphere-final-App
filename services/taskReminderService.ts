@@ -203,17 +203,32 @@ export const getUrgencyColor = (
 
 /**
  * Get all tasks that need reminders right now
+ * Includes: upcoming tasks, overdue tasks, and incomplete tasks from previous week
  */
 export const getTasksNeedingReminders = (
   tasks: Task[]
 ): TaskReminder[] => {
+  const now = new Date();
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  
   return tasks
     .filter((task) => {
       // Don't remind for completed tasks
       if (task.status === "done") return false;
       // Only for tasks with due dates
       if (!task.due_date) return false;
-      return true;
+      
+      const dueDate = new Date(task.due_date);
+      const daysUntilDue = calculateDaysUntilDue(task.due_date);
+      
+      // Include:
+      // 1. Tasks with due dates in the future or overdue
+      // 2. Incomplete tasks from previous week that haven't been completed yet
+      const isUpcoming = daysUntilDue !== null && daysUntilDue >= 0;
+      const isOverdue = daysUntilDue !== null && daysUntilDue < 0;
+      const isPastWeekIncomplete = dueDate < oneWeekAgo && !task.completed_at;
+      
+      return isUpcoming || isOverdue || isPastWeekIncomplete;
     })
     .map((task) => {
       const daysUntilDue = calculateDaysUntilDue(task.due_date || null);
