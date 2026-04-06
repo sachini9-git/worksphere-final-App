@@ -302,29 +302,37 @@ const App: React.FC = () => {
         const optimisticTask = { ...updatedTask, category, subtasks, scheduled_date, completed_at: descriptionObj.completed_at };
         setTasks(tasks.map(t => t.id === updatedTask.id ? optimisticTask : t));
 
-        const dbTask = {
-            ...rest,
-            description: JSON.stringify(descriptionObj),
-            status: updatedTask.status
+        // Build database update with ONLY valid columns (no extra computed fields)
+        const dbTask: any = {
+            title: updatedTask.title,
+            status: updatedTask.status,
+            priority: updatedTask.priority,
+            due_date: updatedTask.due_date || null,
+            reminder: updatedTask.reminder || null,
+            reminder_fired: updatedTask.reminder_fired || false,
+            description: JSON.stringify(descriptionObj)
         };
 
-        console.log("Saving Task to DB:", { id: updatedTask.id, dbTask, completedAt: descriptionObj.completed_at });
+        console.log("Saving Task to DB:", { id: updatedTask.id, status: updatedTask.status, completedAt: descriptionObj.completed_at });
 
         const { data, error } = await supabase.from('tasks').update(dbTask).eq('id', updatedTask.id).select().single();
         
         if (error) {
-            console.error("Error updating task in Supabase:", error);
-            // Optionally revert: setTasks(tasks);
+            console.error("Error updating task in Supabase:", error, dbTask);
+            // Revert to previous state on error
+            setTasks(tasks);
         } else if (data) {
             // Re-sync with actual DB data
             const currentTasks = useAppStore.getState().tasks;
-            setTasks(currentTasks.map(t => t.id === updatedTask.id ? { 
+            const reloadedTask = { 
                 ...data, 
                 category, 
                 subtasks, 
                 scheduled_date, 
                 completed_at: descriptionObj.completed_at 
-            } as Task : t));
+            } as Task;
+            setTasks(currentTasks.map(t => t.id === updatedTask.id ? reloadedTask : t));
+            console.log("Task saved successfully:", { id: updatedTask.id, newStatus: reloadedTask.status });
         }
     };
 
