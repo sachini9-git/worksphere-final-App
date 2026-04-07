@@ -47,19 +47,19 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         </div>
 
         <div className="mb-10 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-100 to-indigo-100 text-violet-600 mb-6 shadow-md shadow-violet-500/20 ring-4 ring-violet-100/50 group">
-                {step === 1 && <User size={32} className="group-hover:scale-110 transition-transform" />}
-                {step === 2 && <Book size={32} className="group-hover:scale-110 transition-transform" />}
-                {step === 3 && <Clock size={32} className="group-hover:scale-110 transition-transform" />}
-                {step === 4 && <BrainCircuit size={32} className="group-hover:scale-110 transition-transform" />}
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 mb-6 shadow-sm ring-4 ring-violet-50/50">
+                {step === 1 && <User size={32} />}
+                {step === 2 && <Book size={32} />}
+                {step === 3 && <Clock size={32} />}
+                {step === 4 && <BrainCircuit size={32} />}
             </div>
-            <h2 className="text-4xl font-display font-extrabold bg-gradient-to-r from-violet-700 to-indigo-700 bg-clip-text text-transparent mb-3 tracking-tight">
+            <h2 className="text-3xl font-display font-extrabold text-slate-900 mb-3 tracking-tight">
                 {step === 1 && "Welcome! What should we call you?"}
                 {step === 2 && "What is your main field of study?"}
                 {step === 3 && "When is your peak focus time?"}
                 {step === 4 && "What is your biggest study challenge?"}
             </h2>
-            <p className="text-slate-600 font-medium text-base max-w-lg mx-auto leading-relaxed">
+            <p className="text-slate-500 font-medium text-lg max-w-lg mx-auto leading-relaxed">
                 {step === 1 && "Let's personalize your workspace."}
                 {step === 2 && "We'll customize your dashboard resources based on your major."}
                 {step === 3 && "We'll suggest optimal study blocks around your natural rhythm."}
@@ -72,7 +72,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                  <div className="relative group">
                     <input 
                         type="text" 
-                        className="w-full bg-gradient-to-br from-slate-50/80 to-violet-50/50 border-2 border-slate-200 rounded-2xl px-6 py-4 text-xl outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all font-bold placeholder-slate-400 text-center hover:border-violet-300 group-focus-within:border-violet-500"
+                        className="w-full bg-slate-50/50 border-2 border-slate-200 rounded-2xl px-6 py-4 text-xl outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all font-bold placeholder-slate-400 text-center"
                         placeholder="Your Name"
                         value={data.studentName}
                         onChange={(e) => setData({...data, studentName: e.target.value})}
@@ -91,10 +91,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                             <button
                                 key={option}
                                 onClick={() => handleAreaSelect(option)}
-                                className={`p-6 rounded-2xl border-2 text-left transition-all duration-200 font-bold text-lg hover:scale-105 active:scale-95 ${
+                                className={`p-6 rounded-2xl border-2 text-left transition-all duration-200 font-bold text-lg ${
                                     !isCustomArea && data.studyArea === option 
-                                    ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-indigo-50 text-violet-700 shadow-lg shadow-violet-500/20' 
-                                    : 'border-slate-200 text-slate-700 hover:border-violet-300 hover:bg-slate-50'
+                                    ? 'border-violet-500 bg-violet-50 text-violet-700 shadow-lg shadow-violet-500/10' 
+                                    : 'border-slate-100 text-slate-600 hover:border-violet-200 hover:bg-slate-50'
                                 }`}
                             >
                                 {option}
@@ -102,10 +102,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         ))}
                         <button
                             onClick={() => handleAreaSelect('Other')}
-                            className={`p-6 rounded-2xl border-2 text-left transition-all duration-200 font-bold text-lg hover:scale-105 active:scale-95 ${
+                            className={`p-6 rounded-2xl border-2 text-left transition-all duration-200 font-bold text-lg ${
                                 isCustomArea 
-                                ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-indigo-50 text-violet-700 shadow-lg shadow-violet-500/20' 
-                                : 'border-slate-200 text-slate-700 hover:border-violet-300 hover:bg-slate-50'
+                                ? 'border-violet-500 bg-violet-50 text-violet-700 shadow-lg shadow-violet-500/10' 
+                                : 'border-slate-100 text-slate-600 hover:border-violet-200 hover:bg-slate-50'
                             }`}
                         >
                             Other
@@ -117,7 +117,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         <div className="animate-in fade-in slide-in-from-top-2">
                              <input 
                                 type="text" 
-                                className="w-full bg-gradient-to-br from-white to-violet-50/30 border-2 border-violet-200 rounded-2xl px-6 py-4 text-lg outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all font-bold placeholder-slate-400 hover:border-violet-300"
+                                className="w-full bg-white border-2 border-violet-200 rounded-2xl px-6 py-4 text-lg outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all font-bold placeholder-slate-400"
                                 placeholder="Type your specific study area..."
                                 value={data.studyArea}
                                 onChange={(e) => setData({...data, studyArea: e.target.value})}
@@ -134,10 +134,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         <button
                             key={option}
                             onClick={() => setData({...data, focusTime: option})}
-                            className={`w-full p-6 rounded-2xl border-2 text-left transition-all duration-200 font-bold text-lg flex justify-between items-center hover:scale-105 active:scale-95 ${
+                            className={`w-full p-6 rounded-2xl border-2 text-left transition-all duration-200 font-bold text-lg flex justify-between items-center ${
                                 data.focusTime === option 
-                                ? 'border-violet-500 bg-gradient-to-r from-violet-50 to-indigo-50 text-violet-700 shadow-lg shadow-violet-500/20' 
-                                : 'border-slate-200 text-slate-700 hover:border-violet-300 hover:bg-slate-50'
+                                ? 'border-violet-500 bg-violet-50 text-violet-700 shadow-lg shadow-violet-500/10' 
+                                : 'border-slate-100 text-slate-600 hover:border-violet-200 hover:bg-slate-50'
                             }`}
                         >
                             {option}
@@ -157,17 +157,17 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                          <button
                             key={item.label}
                             onClick={() => setData({...data, mainDifficulty: item.label})}
-                            className={`w-full p-6 rounded-2xl border-2 text-left transition-all duration-200 flex items-center gap-5 hover:scale-105 active:scale-95 ${
+                            className={`w-full p-6 rounded-2xl border-2 text-left transition-all duration-200 flex items-center gap-5 ${
                                 data.mainDifficulty === item.label 
-                                ? 'border-violet-500 bg-gradient-to-r from-violet-50 to-indigo-50 shadow-lg shadow-violet-500/20' 
-                                : 'border-slate-200 hover:border-violet-300 hover:bg-slate-50'
+                                ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-500/10' 
+                                : 'border-slate-100 hover:border-violet-200 hover:bg-slate-50'
                             }`}
                         >
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${data.mainDifficulty === item.label ? 'bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-md shadow-violet-500/30' : 'bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500'}`}>
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${data.mainDifficulty === item.label ? 'bg-violet-200 text-violet-700' : 'bg-slate-100 text-slate-400'}`}>
                                 <item.icon size={24} />
                             </div>
-                            <div className="flex-1">
-                                <h4 className={`font-bold text-lg mb-1 transition-colors ${data.mainDifficulty === item.label ? 'text-violet-700' : 'text-slate-700'}`}>{item.label}</h4>
+                            <div>
+                                <h4 className={`font-bold text-lg mb-1 ${data.mainDifficulty === item.label ? 'text-violet-700' : 'text-slate-700'}`}>{item.label}</h4>
                                 <p className="text-sm text-slate-500 font-medium">{item.desc}</p>
                             </div>
                             {data.mainDifficulty === item.label && <Check size={24} className="text-violet-600 ml-auto"/>}
@@ -176,7 +176,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 </div>
             )}
 
-            <div className="pt-6">
+            <div className="pt-4">
                 <button 
                     onClick={handleNext}
                     disabled={
@@ -185,7 +185,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         (step === 3 && !data.focusTime) ||
                         (step === 4 && !data.mainDifficulty)
                     }
-                    className="w-full bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-600 text-white py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-violet-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-violet-500/30 flex items-center justify-center gap-2 group"
+                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:shadow-violet-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] shadow-xl shadow-violet-500/30 flex items-center justify-center gap-2 group"
                 >
                     {step === 4 ? "Complete Setup" : "Next Step"} <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
