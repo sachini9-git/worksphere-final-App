@@ -52,21 +52,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
     const sortedUniqueDays = Array.from(new Set(
         sessions.map(s => {
             const dt = new Date(s.completed_at);
-            return `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
+            return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
         })
     )).map(dateStr => {
         const [y, m, d] = dateStr.split('-');
-        return new Date(parseInt(y), parseInt(m), parseInt(d));
+        return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
     }).sort((a, b) => b.getTime() - a.getTime());
 
     if (sortedUniqueDays.length > 0) {
         // Check if there's a session today or yesterday to start the streak
-        const todayStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const yesterdayDate = new Date(now);
         yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        const yesterdayStr = `${yesterdayDate.getFullYear()}-${yesterdayDate.getMonth()}-${yesterdayDate.getDate()}`;
+        const yesterdayStr = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`;
 
-        const firstDayStr = `${sortedUniqueDays[0].getFullYear()}-${sortedUniqueDays[0].getMonth()}-${sortedUniqueDays[0].getDate()}`;
+        const firstDayStr = `${sortedUniqueDays[0].getFullYear()}-${String(sortedUniqueDays[0].getMonth() + 1).padStart(2, '0')}-${String(sortedUniqueDays[0].getDate()).padStart(2, '0')}`;
 
         if (firstDayStr === todayStr || firstDayStr === yesterdayStr) {
             streak = 1;

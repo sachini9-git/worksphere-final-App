@@ -96,7 +96,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
         stopListening(); // Ensure mic stops when sending
 
         const userMsg: ChatMessage = {
-            id: Date.now().toString(),
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             role: 'user',
             text: textToSend,
             timestamp: new Date().toISOString()
@@ -109,7 +109,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
         const responseText = await generateAIResponse(textToSend, contextDocs);
 
         const modelMsg: ChatMessage = {
-            id: (Date.now() + 1).toString(),
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             role: 'model',
             text: responseText,
             timestamp: new Date().toISOString()

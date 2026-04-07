@@ -201,10 +201,22 @@ const App: React.FC = () => {
 
                     // Chat history & XP are loaded locally
                     const loadedChat = localStorage.getItem(`workSphere_chat_${user.id}`);
-                    if (loadedChat) setChatHistory(JSON.parse(loadedChat));
+                    if (loadedChat) {
+                        try {
+                            setChatHistory(JSON.parse(loadedChat));
+                        } catch (e) {
+                            console.error("Failed to parse chat history:", e);
+                            setChatHistory([]);
+                        }
+                    }
                     
                     const loadedXP = localStorage.getItem(`workSphere_xp_${user.id}`);
-                    if (loadedXP) setUserXP(parseInt(loadedXP, 10));
+                    if (loadedXP) {
+                        const xpValue = parseInt(loadedXP, 10);
+                        if (!isNaN(xpValue)) {
+                            setUserXP(xpValue);
+                        }
+                    }
                 } catch (e) {
                     console.error("Failed to load data from Supabase", e);
                 } finally {
