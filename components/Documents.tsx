@@ -56,6 +56,13 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
         .filter(d => d.title.toLowerCase().includes(search.toLowerCase()));
 
     const currentFolder = folders.find(f => f.id === currentFolderId);
+    
+    // NAVIGATION SAFETY: If current folder was deleted externally, reset to root
+    useEffect(() => {
+        if (currentFolderId && !currentFolder) {
+            setCurrentFolderId(null);
+        }
+    }, [folders, currentFolderId, currentFolder]);
 
     const handleSave = () => {
         if (!newTitle.trim()) return;
@@ -149,20 +156,25 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                 console.error("Text extraction failed:", err);
             }
 
-            try {
-                // Save binary file blob for native downloading later
-                await localforage.setItem(`worksphere-file-${file.name}`, file);
-            } catch (err) {
-                console.error("Failed to store file blob in localforage", err);
+            const doc = await addDocument(file.name, extractedText, currentFolderId, docType);
+            
+            if (doc) {
+                try {
+                    // Save binary file blob for native downloading later using unique ID
+                    await localforage.setItem(`worksphere-file-${doc.id}`, file);
+                } catch (err) {
+                    console.error("Failed to store file blob in localforage", err);
+                }
             }
-
-            addDocument(file.name, extractedText, currentFolderId, docType);
         } else {
             const reader = new FileReader();
-            reader.onload = (ev) => {
+            reader.onload = async (ev) => {
                 const text = ev.target?.result as string;
                 const type: DocumentType = ext === 'csv' ? 'csv' : 'doc';
-                addDocument(file.name, text, currentFolderId, type);
+                const doc = await addDocument(file.name, text, currentFolderId, type);
+                if (doc) {
+                    await localforage.setItem(`worksphere-file-${doc.id}`, file);
+                }
             };
             reader.readAsText(file);
         }
@@ -511,13 +523,20 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                             <div className="flex gap-2 items-center">
                                 <button onClick={async () => {
                                     try {
-                                        const file = await localforage.getItem<File>(`worksphere-file-${activeDoc.title}`);
+                                        // Try by ID (New system)
+                                        let file = await localforage.getItem<File>(`worksphere-file-${activeDoc.id}`);
+                                        
+                                        // Fallback to Title (Old system)
+                                        if (!file) {
+                                            file = await localforage.getItem<File>(`worksphere-file-${activeDoc.title}`);
+                                        }
+
                                         if (file) {
                                             const url = URL.createObjectURL(file);
                                             window.open(url, '_blank');
                                             setTimeout(() => URL.revokeObjectURL(url), 1000);
                                         } else {
-                                            alert('Original file blob not found. Please re-upload this file if you need to download it natively.');
+                                            alert('Original file blob not found in this browser. Please re-upload this file if you need to download it natively.');
                                         }
                                     } catch (e) { alert('Failed to retrieve file.'); }
                                 }} className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs rounded-full font-bold flex items-center gap-1 border border-emerald-100 hover:bg-emerald-100 transition-colors">
@@ -608,7 +627,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                 <div className="flex items-center gap-3 text-sm text-slate-400 mb-10 pb-6 border-b border-slate-100 font-medium">
                                     <span>Created {new Date(activeDoc.created_at).toLocaleDateString()}</span>
                                     <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                    <span>{activeDoc.content.length} characters</span>
+                                    <span>{activeDoc.content?.length || 0} characters</span>
                                 </div>
                                 {summarizedText && (
                                     <div className="mb-8 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg">
@@ -619,9 +638,10 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                             {summarizedText}
                                         </div>
                                         <button
-                                            onClick={() => {
-                                                addDocument(`Summary: ${activeDoc.title}`, summarizedText, activeDoc.folder_id, 'note');
+                                            onClick={async () => {
+                                                await addDocument(`Summary: ${activeDoc.title}`, summarizedText, activeDoc.folder_id, 'note');
                                                 alert('Summary saved as a new Note!');
+                                                setSummarizedText(null);
                                             }}
                                             className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
                                         >
@@ -631,7 +651,7 @@ export const Documents: React.FC<DocumentsProps> = ({ documents, folders, addDoc
                                 )}
                                 <div className="prose prose-violet max-w-none text-slate-800 leading-relaxed text-lg font-medium bg-transparent">
                                     {(activeDoc.type === 'note' || activeDoc.type === 'csv') ? (
-                                        <div dangerouslySetInnerHTML={{ __html: activeDoc.content }} />
+                                        <div dangerouslySetInnerHTML={{ __html: activeDoc.content || '' }} />
                                     ) : (
                                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center flex flex-col items-center">
                                             <FileText className="text-slate-300 mb-3" size={32} />

@@ -104,7 +104,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
     const toggleSubtask = (taskId: string, subtaskId: string) => {
         const task = tasks.find(t => t.id === taskId);
         if (task) {
-            const updatedSubtasks = task.subtasks.map(st => st.id === subtaskId ? { ...st, completed: !st.completed } : st);
+            const updatedSubtasks = (task.subtasks || []).map(st => st.id === subtaskId ? { ...st, completed: !st.completed } : st);
             updateTask({ ...task, subtasks: updatedSubtasks });
         }
     };
@@ -273,7 +273,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
                                         <Bell size={12} /> {format(new Date(task.reminder), 'h:mm a')}
                                     </span>
                                 )}
-                                {task.subtasks.length > 0 && (
+                                {task.subtasks?.length > 0 && (
                                     <button onClick={() => setExpandedTaskId(expandedTaskId === task.id ? null : task.id)} className="flex items-center gap-1 hover:text-violet-600 transition-colors bg-slate-50 px-2 py-1 rounded-lg">
                                         <LayoutList size={12} /> {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}
                                         {expandedTaskId === task.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}

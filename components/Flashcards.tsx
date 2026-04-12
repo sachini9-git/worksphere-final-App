@@ -252,10 +252,10 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }
 
           <div className="flex gap-4 mt-8">
               <button
-                onClick={() => {
+                onClick={async () => {
                   const content = JSON.stringify(flashcards);
                   const docTitle = documents.find(d => d.id === selectedDoc)?.title || 'Custom';
-                  addDocument(`Flashcards: ${docTitle}`, content, null, 'flashcard_set');
+                  await addDocument(`Flashcards: ${docTitle}`, content, null, 'flashcard_set');
                   alert('Flashcards saved to Library!');
                   setViewMode('saved');
                 }}

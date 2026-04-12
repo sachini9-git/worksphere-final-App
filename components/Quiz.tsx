@@ -542,10 +542,10 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
           {/* Actions */}
           <div className="flex gap-4">
             <button
-              onClick={() => {
+              onClick={async () => {
                 const content = JSON.stringify(questions);
                 const docTitle = documents.find(d => d.id === selectedDoc)?.title || 'Custom';
-                addDocument(`Quiz: ${docTitle}`, content, null, 'quiz_set');
+                await addDocument(`Quiz: ${docTitle}`, content, null, 'quiz_set');
                 alert('Quiz saved with answers to Library!');
                 setViewMode('saved');
               }}

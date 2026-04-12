@@ -181,14 +181,26 @@ const App: React.FC = () => {
                     const { data: sessionsData } = await supabase.from('focus_sessions').select('*').eq('user_id', user.id);
                     if (sessionsData) setSessions(sessionsData);
 
-                    // Ensure user exists in public.users table (Self-healing)
-                    const { error: userError } = await supabase.from('users').upsert({
+                    // Ensure user exists in public.users table (Self-healing) & Fetch XP
+                    const { data: dbUser, error: fetchUserError } = await supabase.from('users').select('xp').eq('id', user.id).maybeSingle();
+                    
+                    if (!fetchUserError && dbUser) {
+                        setUserXP(dbUser.xp || 0);
+                    } else {
+                        // Fallback to local storage if DB fetch fails or column missing
+                        const loadedXP = localStorage.getItem(`workSphere_xp_${user.id}`);
+                        if (loadedXP) {
+                            const xpValue = parseInt(loadedXP, 10);
+                            if (!isNaN(xpValue)) setUserXP(xpValue);
+                        }
+                    }
+
+                    // Self-healing: make sure user record exists
+                    await supabase.from('users').upsert({
                         id: user.id,
                         email: user.email,
                         name: user.name
                     });
-                    if (userError) console.error("User upsert error:", userError);
-
                     // Fetch Onboarding
                     const { data: onboardingData, error: obError } = await supabase.from('onboarding').select('*').eq('user_id', user.id).maybeSingle();
                     if (obError) console.error("Onboarding fetch error:", obError);
@@ -229,13 +241,22 @@ const App: React.FC = () => {
         }
     }, [user, dataLoadedForUserId]);
 
-    // Save Chat History & XP (Local)
+    // Save Chat History (Local) & XP (Cloud + Local)
     useEffect(() => {
-        if (user) {
-            localStorage.setItem(`workSphere_chat_${user.id}`, JSON.stringify(chatHistory));
-            localStorage.setItem(`workSphere_xp_${user.id}`, userXP.toString());
-        }
-    }, [chatHistory, userXP, user]);
+        const syncXP = async () => {
+            if (!user || userXP === 0) return;
+            const { error } = await supabase.from('users').update({ xp: userXP }).eq('id', user.id);
+            if (error) {
+                // Ignore errors related to missing 'xp' column to prevent console spam
+                if (!error.message.includes('column "xp" of relation "users" does not exist')) {
+                    console.error("Failed to sync XP to cloud:", error.message);
+                }
+            }
+        };
+
+        const timeout = setTimeout(syncXP, 2000); // Debounce sync
+        return () => clearTimeout(timeout);
+    }, [userXP, user, supabase]);
 
 
     const handleOnboardingComplete = async (data: OnboardingData) => {
@@ -290,7 +311,7 @@ const App: React.FC = () => {
 
         const { data, error } = await supabase.from('tasks').insert([newTask]).select().single();
         if (!error && data) {
-            setTasks([...tasks, { ...data, category, subtasks: [] }]);
+            setTasks(prev => [...prev, { ...data, category, subtasks: [] }]);
         } else if (error) {
             console.error("Error adding task:", error);
         }
@@ -312,7 +333,7 @@ const App: React.FC = () => {
 
         // OPTIMISTIC UI UPDATE
         const optimisticTask = { ...updatedTask, category, subtasks, scheduled_date, completed_at: descriptionObj.completed_at };
-        setTasks(tasks.map(t => t.id === updatedTask.id ? optimisticTask : t));
+        setTasks(prev => prev.map(t => t.id === updatedTask.id ? optimisticTask : t));
 
         // Build database update with ONLY valid columns (no extra computed fields)
         const dbTask: any = {
@@ -351,13 +372,13 @@ const App: React.FC = () => {
     const deleteTask = async (id: string) => {
         const { error } = await supabase.from('tasks').delete().eq('id', id);
         if (!error) {
-            setTasks(tasks.filter(t => t.id !== id));
+            setTasks(prev => prev.filter(t => t.id !== id));
         }
     };
 
     // Document Handlers
     const addDocument = async (title: string, content: string, folderId: string | null, type: DocumentType = 'note') => {
-        if (!user) return;
+        if (!user) return null;
         const newDoc = {
             user_id: user.id,
             title,
@@ -368,8 +389,10 @@ const App: React.FC = () => {
         };
         const { data, error } = await supabase.from('documents').insert([newDoc]).select().single();
         if (!error && data) {
-            setDocuments([...documents, data]);
+            setDocuments(prev => [...prev, data]);
+            return data;
         }
+        return null;
     };
 
     const updateDocument = async (id: string, title: string, content: string) => {
@@ -388,26 +411,53 @@ const App: React.FC = () => {
         };
         const { data, error } = await supabase.from('folders').insert([newFolder]).select().single();
         if (!error && data) {
-            setFolders([...folders, data]);
+            setFolders(prev => [...prev, data]);
         }
     };
 
     const deleteDocument = async (id: string) => {
         const { error } = await supabase.from('documents').delete().eq('id', id);
         if (!error) {
-            setDocuments(documents.filter(d => d.id !== id));
+            setDocuments(prev => prev.filter(d => d.id !== id));
         } else {
             console.error("Failed to delete document", error);
         }
     };
 
     const deleteFolder = async (id: string) => {
-        // Supabase foreign key constraints might cascade delete documents, 
-        // but we filter them from local state just in case to avoid orphan renders.
+        if (!confirm('Are you sure? This will delete the folder and all its contents permanently.')) return;
+        
         const { error } = await supabase.from('folders').delete().eq('id', id);
+        
         if (!error) {
-            setFolders(folders.filter(f => f.id !== id));
-            setDocuments(documents.filter(d => d.folder_id !== id));
+            // RECURSIVE LOCAL CLEANUP
+            // We need to find all descendant folders and documents to remove them from state
+            const getAllDescendants = (folderId: string): { folderIds: string[], docIds: string[] } => {
+                const currentDocs = useAppStore.getState().documents;
+                const currentFolders = useAppStore.getState().folders;
+                
+                let folderIds = [folderId];
+                let docIds: string[] = [];
+                
+                // Find direct child documents
+                const childDocs = currentDocs.filter(d => d.folder_id === folderId).map(d => d.id);
+                docIds = [...docIds, ...childDocs];
+                
+                // Find child folders and recurse
+                const childFolders = currentFolders.filter(f => f.parent_id === folderId);
+                childFolders.forEach(cf => {
+                    const descendants = getAllDescendants(cf.id);
+                    folderIds = [...folderIds, ...descendants.folderIds];
+                    docIds = [...docIds, ...descendants.docIds];
+                });
+                
+                return { folderIds, docIds };
+            };
+
+            const { folderIds, docIds } = getAllDescendants(id);
+            
+            setFolders(prev => prev.filter(f => !folderIds.includes(f.id)));
+            setDocuments(prev => prev.filter(d => !docIds.includes(d.id)));
         } else {
             console.error("Failed to delete folder", error);
         }

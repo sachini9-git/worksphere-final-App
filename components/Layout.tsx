@@ -44,7 +44,9 @@ export const Layout: React.FC<LayoutProps> = ({
   const nextLevelXP = Math.ceil(100 * Math.pow(userLevel, 1.5));
   const xpIntoLevel = userXP - baseXP;
   const xpRequiredForLevel = nextLevelXP - baseXP;
-  const progressPercent = Math.min(100, Math.max(0, (xpIntoLevel / xpRequiredForLevel) * 100));
+  const progressPercent = xpRequiredForLevel > 0 
+    ? Math.min(100, Math.max(0, (xpIntoLevel / xpRequiredForLevel) * 100))
+    : 0;
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
