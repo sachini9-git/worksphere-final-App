@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Document, Folder, DocumentType } from '../types';
 import { FileText, Plus, Search, Upload, Tag, FolderOpen, MoreHorizontal, ChevronRight, LayoutGrid, List, CornerDownRight, Mic, StopCircle, Edit3, Trash2, Bot, Download } from 'lucide-react';
 import { summarizeDocument } from '../services/geminiService';
@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 interface DocumentsProps {
     documents: Document[];
     folders: Folder[];
-    addDocument: (title: string, content: string, folderId: string | null, type?: DocumentType) => void;
+    addDocument: (title: string, content: string, folderId: string | null, type?: DocumentType) => any;
     updateDocument: (id: string, title: string, content: string) => void;
     addFolder: (name: string, parentId: string | null) => void;
     deleteDocument: (id: string) => void;

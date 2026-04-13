@@ -16,6 +16,7 @@ import { Auth } from './components/Auth';
 import { supabase } from './services/supabaseClient';
 import { User, Task, Document, FocusSession, OnboardingData, ChatMessage, TaskCategory, Folder, DocumentType, TaskPriority, SubTask } from './types';
 import { BookOpen, ArrowRight } from 'lucide-react';
+import localforage from 'localforage';
 import { useAppStore } from './store/appStore';
 import { sounds } from './utils/sounds';
 
@@ -311,7 +312,7 @@ const App: React.FC = () => {
 
         const { data, error } = await supabase.from('tasks').insert([newTask]).select().single();
         if (!error && data) {
-            setTasks(prev => [...prev, { ...data, category, subtasks: [] }]);
+            setTasks([...tasks, { ...data, category, subtasks: [] }]);
         } else if (error) {
             console.error("Error adding task:", error);
         }
@@ -333,7 +334,7 @@ const App: React.FC = () => {
 
         // OPTIMISTIC UI UPDATE
         const optimisticTask = { ...updatedTask, category, subtasks, scheduled_date, completed_at: descriptionObj.completed_at };
-        setTasks(prev => prev.map(t => t.id === updatedTask.id ? optimisticTask : t));
+        setTasks(tasks.map(t => t.id === updatedTask.id ? optimisticTask : t));
 
         // Build database update with ONLY valid columns (no extra computed fields)
         const dbTask: any = {
@@ -372,7 +373,7 @@ const App: React.FC = () => {
     const deleteTask = async (id: string) => {
         const { error } = await supabase.from('tasks').delete().eq('id', id);
         if (!error) {
-            setTasks(prev => prev.filter(t => t.id !== id));
+            setTasks(tasks.filter(t => t.id !== id));
         }
     };
 
@@ -389,7 +390,7 @@ const App: React.FC = () => {
         };
         const { data, error } = await supabase.from('documents').insert([newDoc]).select().single();
         if (!error && data) {
-            setDocuments(prev => [...prev, data]);
+            setDocuments([...documents, data]);
             return data;
         }
         return null;
@@ -411,14 +412,15 @@ const App: React.FC = () => {
         };
         const { data, error } = await supabase.from('folders').insert([newFolder]).select().single();
         if (!error && data) {
-            setFolders(prev => [...prev, data]);
+            setFolders([...folders, data]);
         }
     };
 
     const deleteDocument = async (id: string) => {
         const { error } = await supabase.from('documents').delete().eq('id', id);
         if (!error) {
-            setDocuments(prev => prev.filter(d => d.id !== id));
+            setDocuments(documents.filter(d => d.id !== id));
+            await localforage.removeItem(`worksphere-file-${id}`);
         } else {
             console.error("Failed to delete document", error);
         }
@@ -456,8 +458,9 @@ const App: React.FC = () => {
 
             const { folderIds, docIds } = getAllDescendants(id);
             
-            setFolders(prev => prev.filter(f => !folderIds.includes(f.id)));
-            setDocuments(prev => prev.filter(d => !docIds.includes(d.id)));
+            setFolders(folders.filter(f => !folderIds.includes(f.id)));
+            setDocuments(documents.filter(d => !docIds.includes(d.id)));
+            docIds.forEach(docId => localforage.removeItem(`worksphere-file-${docId}`).catch(console.error));
         } else {
             console.error("Failed to delete folder", error);
         }
