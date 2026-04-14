@@ -132,9 +132,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
         <div className="flex h-screen gap-8 max-h-screen overflow-hidden">
             {/* Sidebar: Document Context */}
             <div className="w-80 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden hidden lg:flex h-full">
-                <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-violet-50/80 to-indigo-50/80 backdrop-blur-md">
+                <div className="p-5 border-b border-slate-100 bg-gradient-to-r from-violet-50/80 to-indigo-50/80 backdrop-blur-md">
                     <h3 className="font-display font-extrabold text-slate-800 text-sm uppercase tracking-wider mb-3 flex items-center gap-2"><FileText size={16} className="text-violet-600" /> Study Context</h3>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">Select notes to personalize the AI's answers.</p>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed mb-3">Select notes to personalize the AI's answers.</p>
                     
                     {/* Search Bar */}
                     <div className="relative group">
@@ -144,7 +144,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search notes..."
-                            className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 placeholder-slate-400 font-medium transition-all hover:border-slate-300"
+                            className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 placeholder-slate-400 font-medium transition-all hover:border-slate-300"
                         />
                         {searchQuery && (
                             <button
@@ -156,7 +156,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                         )}
                     </div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30">
+                <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/30">
                     {filteredDocsList.length === 0 ? (
                         <div className="p-8 text-center text-slate-400 text-sm font-medium border-2 border-dashed border-slate-200 rounded-2xl">
                             {searchQuery ? (
@@ -169,7 +169,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                         <div
                             key={doc.id}
                             onClick={() => toggleDocSelection(doc.id)}
-                            className={`p-4 rounded-2xl cursor-pointer border transition-all duration-200 flex items-start gap-3 group ${selectedDocIds.includes(doc.id) ? 'bg-white border-violet-500 shadow-md ring-1 ring-violet-500' : 'bg-white/50 border-slate-200/60 hover:border-slate-300 hover:bg-white shadow-sm'}`}
+                            className={`p-3 rounded-2xl cursor-pointer border transition-all duration-200 flex items-start gap-3 group ${selectedDocIds.includes(doc.id) ? 'bg-white border-violet-500 shadow-md ring-1 ring-violet-500' : 'bg-white/50 border-slate-200/60 hover:border-slate-300 hover:bg-white shadow-sm'}`}
                         >
                             <div className={`mt-0.5 p-1.5 rounded-lg transition-colors ${selectedDocIds.includes(doc.id) ? 'bg-violet-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:text-slate-600'}`}>
                                 {selectedDocIds.includes(doc.id) ? <Check size={12} strokeWidth={3} /> : <FileText size={12} />}
