@@ -13,23 +13,41 @@ export interface Flashcard {
 /**
  * Checks whether the document content is actually useful study material
  * rather than a placeholder, extraction-failure message, or too-short text.
+ * More lenient with extracted content - allows content with some placeholder text
+ * if there's substantial extracted material.
  */
 const isContentUsable = (content: string): boolean => {
   if (!content || content.trim().length < 50) return false;
 
-  const placeholderPatterns = [
-    'File attached perfectly',
-    'Click "Edit" above and paste',
-    'Click Edit above and paste',
-    'paste your own study notes',
+  const lowerContent = content.toLowerCase();
+  
+  // Hard failure: purely placeholder content
+  const purelyPlaceholder = [
+    'click "edit" above and paste your own study notes',
+    'click edit above and paste your own study notes',
+    'file attached perfectly',
+    'file attached safely',
+  ];
+  
+  if (purelyPlaceholder.some(pattern => lowerContent === pattern)) {
+    return false;
+  }
+
+  // Soft patterns: if content has these AND is short, reject
+  const softPatterns = [
     'text extraction failed',
     'original PDF content is not available',
-    'File attached safely',
-    'so the AI Tutor can read them',
   ];
 
-  const lowerContent = content.toLowerCase();
-  return !placeholderPatterns.some(pattern => lowerContent.includes(pattern.toLowerCase()));
+  const hasOnlySoftPattern = softPatterns.some(pattern => lowerContent.includes(pattern.toLowerCase()));
+  
+  // If content is long enough (> 200 chars) and has real text beyond placeholder,
+  // accept it even if it has some placeholder text mixed in
+  if (content.trim().length > 200) {
+    return true;
+  }
+
+  return !hasOnlySoftPattern;
 };
 
 export const generateFlashcards = async (
