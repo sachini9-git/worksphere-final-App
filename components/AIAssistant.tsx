@@ -123,9 +123,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
     };
 
     return (
-        <div className="flex h-full gap-8">
+        <div className="flex h-screen gap-8 max-h-screen overflow-hidden">
             {/* Sidebar: Document Context */}
-            <div className="w-80 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden hidden lg:flex">
+            <div className="w-80 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden hidden lg:flex h-full">
                 <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-violet-50/80 to-indigo-50/80 backdrop-blur-md">
                     <h3 className="font-display font-extrabold text-slate-800 text-sm uppercase tracking-wider mb-2 flex items-center gap-2"><FileText size={16} className="text-violet-600" /> Study Context</h3>
                     <p className="text-xs text-slate-500 font-medium leading-relaxed">Select notes to personalize the AI's answers.</p>
@@ -154,7 +154,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
             </div>
 
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-violet-200/40 border border-white/60 overflow-hidden relative">
+            <div className="flex-1 flex flex-col bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-violet-200/40 border border-white/60 overflow-hidden relative h-full">
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-md sticky top-0 z-10">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] relative">
