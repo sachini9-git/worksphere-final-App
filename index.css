@@ -111,3 +111,10 @@
 .animate-float {
   animation: float 3.5s ease-in-out infinite;
 }
+
+/* Remove default focus outline from Recharts clicked */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-responsive-container {
+  outline: none !important;
+}
