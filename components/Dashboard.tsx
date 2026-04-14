@@ -145,14 +145,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
 
     const completedTasksThisWeekActual = tasksForThisWeek.filter(t => t.status === 'done').length;
 
-    // Refined Productivity Calculation: Based on actual scheduled tasks, not a baseline
-    // If user schedules 10 tasks and completes 10, show 100%
-    // If user schedules 10 tasks and completes 5, show 50%
-    // If no tasks scheduled, show 0%
-    const weeklyDenominator = tasksForThisWeek.length > 0 ? tasksForThisWeek.length : 1;
-    const weeklyCompletionPercentage = tasksForThisWeek.length > 0 
-        ? Math.round((completedTasksThisWeekActual / weeklyDenominator) * 100)
-        : 0;
+    // We only use the explicitly scheduled tasks as the denominator target.
+    const scheduledThisWeek = tasksForThisWeek.filter(t => {
+        const targetDate = t.scheduled_date || t.due_date;
+        if (!targetDate) return false;
+        return isWithinInterval(new Date(targetDate), { start: startOfDay(selectedWeekStart), end: endOfDay(selectedWeekEnd) });
+    });
+
+    // If no tasks scheduled, but some completed (from backlog), denominator becomes what was completed so it shows 100%
+    const weeklyDenominator = scheduledThisWeek.length > 0 ? scheduledThisWeek.length : Math.max(1, completedTasksThisWeekActual);
+    
+    const weeklyCompletionPercentageRaw = Math.round((completedTasksThisWeekActual / weeklyDenominator) * 100);
+    const weeklyCompletionPercentage = Math.min(100, weeklyCompletionPercentageRaw);
 
     // Productivity Ring Logic: Use the weekly percentage
     const todayCompletionPercentage = weeklyCompletionPercentage;

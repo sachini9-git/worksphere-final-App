@@ -48,6 +48,7 @@ const App: React.FC = () => {
     const [focusZoneDuration, setFocusZoneDuration] = useState(0); // in minutes
     const [isFocusZoneActive, setIsFocusZoneActive] = useState(false);
     const [focusZoneTimeLeft, setFocusZoneTimeLeft] = useState(0);
+    const [focusZoneEndTime, setFocusZoneEndTime] = useState<number | null>(null);
 
     // Audio Context Ref for App-level sound
     const audioCtxRef = useRef<AudioContext | null>(null);
@@ -516,7 +517,7 @@ const App: React.FC = () => {
     // Focus Timer Logic
     useEffect(() => {
         let interval: any;
-        if ((isFocusActive && focusEndTime) || isFocusZoneActive) {
+        if ((isFocusActive && focusEndTime) || (isFocusZoneActive && focusZoneEndTime)) {
             interval = setInterval(() => {
                 const now = Date.now();
 
@@ -530,13 +531,14 @@ const App: React.FC = () => {
                     }
                 }
 
-                if (isFocusZoneActive) {
-                    setFocusZoneTimeLeft(prev => Math.max(0, prev - 0.1));
+                if (isFocusZoneActive && focusZoneEndTime) {
+                    const diffZone = Math.max(0, (focusZoneEndTime - now) / 1000);
+                    setFocusZoneTimeLeft(diffZone);
                 }
             }, 100);
         }
         return () => clearInterval(interval);
-    }, [isFocusActive, focusEndTime, isFocusZoneActive, focusMode, focusConfig]);
+    }, [isFocusActive, focusEndTime, isFocusZoneActive, focusZoneEndTime, focusMode, focusConfig]);
 
     // Ambient Hum Logic
     useEffect(() => {
@@ -638,10 +640,12 @@ const App: React.FC = () => {
         if (isFocusZoneActive) {
             setIsFocusZoneActive(false);
             setFocusZoneTimeLeft(0);
+            setFocusZoneEndTime(null);
         } else {
             if (focusZoneDuration > 0) {
                 setIsFocusZoneActive(true);
                 setFocusZoneTimeLeft(focusZoneDuration * 60);
+                setFocusZoneEndTime(Date.now() + focusZoneDuration * 60 * 1000);
                 
                 // Forcefully jump-start the main Pomodoro cycle immediately
                 if (!isFocusActive) {

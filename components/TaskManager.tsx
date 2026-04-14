@@ -109,6 +109,14 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
         }
     };
 
+    const deleteSubtask = (taskId: string, subtaskId: string) => {
+        const task = tasks.find(t => t.id === taskId);
+        if (task) {
+            const updatedSubtasks = (task.subtasks || []).filter(st => st.id !== subtaskId);
+            updateTask({ ...task, subtasks: updatedSubtasks });
+        }
+    };
+
     // Drag Handlers
     const handleDragStart = (e: React.DragEvent, taskId: string) => {
         setDraggedTaskId(taskId);
@@ -190,11 +198,17 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
                     <input type="text" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} className="w-full bg-slate-50/50 border border-slate-200 rounded-lg p-2 mb-3 text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all" />
                     <div className="flex flex-col gap-2 mb-3">
                         <div>
-                            <label className="text-xs text-slate-400 font-bold block mb-1">Due Date</label>
+                            <div className="flex items-center justify-between mb-1">
+                                <label className="text-xs text-slate-400 font-bold block">Due Date</label>
+                                {editForm.date && <button onClick={() => setEditForm({ ...editForm, date: '' })} className="text-[10px] text-rose-400 hover:text-rose-600 font-bold">Clear</button>}
+                            </div>
                             <input type="date" value={editForm.date || ''} onChange={e => setEditForm({ ...editForm, date: e.target.value })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-full" />
                         </div>
                         <div>
-                            <label className="text-xs text-slate-400 font-bold block mb-1">Reminder</label>
+                            <div className="flex items-center justify-between mb-1">
+                                <label className="text-xs text-slate-400 font-bold block">Reminder</label>
+                                {editForm.reminder && <button onClick={() => setEditForm({ ...editForm, reminder: '' })} className="text-[10px] text-rose-400 hover:text-rose-600 font-bold">Clear</button>}
+                            </div>
                             <div className="flex gap-2">
                                 <input type="date" value={editForm.reminder ? editForm.reminder.slice(0, 10) : ''} onChange={e => setEditForm({ ...editForm, reminder: e.target.value ? `${e.target.value}T${editForm.reminder ? editForm.reminder.slice(11, 16) : '09:00'}` : '' })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-1/2" />
                                 <input type="time" value={editForm.reminder ? editForm.reminder.slice(11, 16) : ''} onChange={e => setEditForm({ ...editForm, reminder: e.target.value ? `${editForm.reminder ? editForm.reminder.slice(0, 10) : getTodayString()}T${e.target.value}` : '' })} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-1/2" />
@@ -262,6 +276,12 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
 
                             <h3 className={`font-display font-bold text-base text-slate-800 leading-snug mb-2 ${isCompleted ? 'line-through text-slate-400' : ''}`}>{task.title}</h3>
 
+                            {task.subtasks?.length > 0 && (
+                                <div className="w-full h-1 bg-slate-100 rounded-full mb-3 overflow-hidden">
+                                    <div className="h-full bg-violet-400 transition-all duration-500" style={{ width: `${(task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100}%` }}></div>
+                                </div>
+                            )}
+
                             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium">
                                 {task.due_date && (
                                     <span className={`flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg ${!isCompleted && isPast(new Date(task.due_date)) ? 'text-rose-500 bg-rose-50' : ''}`}>
@@ -290,7 +310,10 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
                                                 <button onClick={() => toggleSubtask(task.id, st.id)} className={`transition-colors ${st.completed ? 'text-violet-500' : 'text-slate-200 group-hover/sub:text-slate-400'}`}>
                                                     {st.completed ? <CheckCircle2 size={14} /> : <Circle size={14} />}
                                                 </button>
-                                                <span className={`text-xs font-medium ${st.completed ? 'line-through text-slate-400' : 'text-slate-600'}`}>{st.title}</span>
+                                                <span className={`flex-1 text-xs font-medium ${st.completed ? 'line-through text-slate-400' : 'text-slate-600'}`}>{st.title}</span>
+                                                <button onClick={() => deleteSubtask(task.id, st.id)} className="opacity-0 group-hover/sub:opacity-100 text-slate-300 hover:text-rose-500 transition-all p-1">
+                                                    <X size={12} />
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
