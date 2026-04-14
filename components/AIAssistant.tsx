@@ -185,7 +185,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
 
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-violet-200/40 border border-white/60 overflow-hidden relative h-full">
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-md sticky top-0 z-10">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-md sticky top-0 z-10">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] relative">
                              <div className="absolute inset-0 bg-white/20 blur-md rounded-2xl animate-blob"></div>
@@ -204,9 +204,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                     </div>
                 </div>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/30">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-5 bg-slate-50/30">
                     {history.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-full text-center p-10 opacity-80 animate-in fade-in zoom-in-95 duration-500 relative">
+                        <div className="flex flex-col items-center justify-center h-full text-center p-8 opacity-80 animate-in fade-in zoom-in-95 duration-500 relative">
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-violet-400/10 rounded-full blur-[80px] pointer-events-none animate-blob"></div>
                             <div className="w-24 h-24 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-[2.5rem] flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative z-10">
                                 <Bot size={48} className="text-white drop-shadow-md" />
@@ -249,9 +249,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                 </div>
 
                 {/* Input Area */}
-                <div className="p-6 bg-white/50 backdrop-blur-md border-t border-slate-100 z-20">
+                <div className="p-4 bg-white/50 backdrop-blur-md border-t border-slate-100 z-20">
                     {selectedDocIds.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4 animate-in fade-in slide-in-from-bottom-2">
+                        <div className="flex flex-wrap gap-2 mb-3 animate-in fade-in slide-in-from-bottom-2">
                             <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mr-2 mt-1.5">Context:</span>
                             {documents.filter(d => selectedDocIds.includes(d.id)).map(d => (
                                 <span key={d.id} className="text-xs bg-indigo-50/80 backdrop-blur-sm text-indigo-700 px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-indigo-100 font-bold shadow-sm">
