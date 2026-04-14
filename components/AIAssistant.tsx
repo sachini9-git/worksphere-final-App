@@ -204,15 +204,15 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
                     </div>
                 </div>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-5 bg-slate-50/30">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/30">
                     {history.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-full text-center p-8 opacity-80 animate-in fade-in zoom-in-95 duration-500 relative">
+                        <div className="flex flex-col items-center justify-center h-full text-center p-4 opacity-80 animate-in fade-in zoom-in-95 duration-500 relative">
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-violet-400/10 rounded-full blur-[80px] pointer-events-none animate-blob"></div>
-                            <div className="w-24 h-24 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-[2.5rem] flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative z-10">
-                                <Bot size={48} className="text-white drop-shadow-md" />
+                            <div className="w-20 h-20 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-[2.5rem] flex items-center justify-center mb-4 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative z-10">
+                                <Bot size={40} className="text-white drop-shadow-md" />
                             </div>
-                            <h2 className="text-2xl font-display font-extrabold text-slate-800 mb-3">Your Personal Study Partner</h2>
-                            <p className="text-slate-500 font-medium max-w-sm leading-relaxed">
+                            <h2 className="text-xl font-display font-extrabold text-slate-800 mb-2">Your Personal Study Partner</h2>
+                            <p className="text-slate-500 font-medium max-w-sm leading-relaxed text-sm">
                                 I can quiz you, summarize your notes, or explain complex topics simply. Just ask!
                             </p>
                         </div>
