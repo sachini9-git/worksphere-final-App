@@ -275,7 +275,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
 
             setAiLoading(true);
             const avgSession = sessionsThisWeek.length ? Math.round(totalFocusMinutesThisWeek / sessionsThisWeek.length) : 0;
-            const prompt = `You are a study coach. Based on the following user weekly metrics, analyze behaviour and provide 3 concise personalized study recommendations in bullet points, plus one actionable next step. Keep each bullet short (<=120 chars):\n\n- Focus minutes this week: ${totalFocusMinutesThisWeek}\n- Focus sessions this week: ${sessionsThisWeek.length}\n- Avg session minutes this week: ${avgSession}\n- Tasks completed this week: ${completedTasksThisWeek}\n- Pending tasks: ${pendingTasks}\n\nConsider trends and encourage positive habits. Return plain text.`;
+            const prompt = `You are a study coach. Analyze the following user weekly metrics and provide personalized guidance in this EXACT markdown format:
+
+**Summary:** [One encouraging sentence about their progress]
+
+**3 Recommendations:**
+- [First recommendation with emoji and brief insight]
+- [Second recommendation with emoji and brief insight]  
+- [Third recommendation with emoji and brief insight]
+
+**Your Next Step:** [One specific, actionable task for tomorrow]
+
+User metrics:
+- Focus minutes this week: ${totalFocusMinutesThisWeek}
+- Focus sessions this week: ${sessionsThisWeek.length}
+- Avg session minutes: ${avgSession}
+- Tasks completed: ${completedTasksThisWeek}
+- Pending tasks: ${pendingTasks}
+
+Keep recommendations brief (max 100 chars each). Be encouraging and specific.`;
             try {
                 const resp = await generateAIResponse(prompt, []);
                 if (!mounted) return;
@@ -347,7 +365,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                                 </div>
                             ) : (
                                 aiTipText ? (
-                                    <div className="prose prose-slate prose-p:text-slate-600 prose-headings:text-slate-800 prose-li:text-slate-600 max-w-none prose-strong:text-indigo-700 prose-li:marker:text-violet-500">
+                                    <div className="prose prose-slate max-w-none 
+                                        prose-headings:text-slate-800 prose-headings:font-display prose-headings:font-bold
+                                        prose-p:text-slate-700 prose-p:leading-relaxed prose-p:mb-3
+                                        prose-li:text-slate-700 prose-li:leading-relaxed prose-li:mb-2 
+                                        prose-li:before:text-violet-500 prose-li:before:font-bold
+                                        prose-strong:text-violet-700 prose-strong:font-bold
+                                        prose-ul:my-3 prose-ul:space-y-2.5
+                                        ">
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiTipText}</ReactMarkdown>
                                     </div>
                                 ) : (
@@ -361,7 +386,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                         
                         {/* Footer Action */}
                         <div className="p-6 bg-slate-50/80 border-t border-slate-100 backdrop-blur-md relative z-10 flex justify-end">
-                            <button onClick={() => setIsTipOpen(false)} className="px-8 py-3.5 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-black hover:to-black text-white font-bold rounded-xl shadow-lg shadow-slate-900/20 active:scale-95 transition-all">
+                            <button onClick={() => setIsTipOpen(false)} className="px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold rounded-lg shadow-md shadow-violet-500/20 active:scale-95 transition-all">
                                 Got it, thanks
                             </button>
                         </div>
