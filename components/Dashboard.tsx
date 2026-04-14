@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 import { Task, FocusSession } from '../types';
 import { generateAIResponse } from '../services/geminiService';
-import { CheckCircle, Clock, Award, TrendingUp, Calendar, Mail, FileText, HardDrive, ExternalLink, ArrowUpRight, Sparkles, AlertTriangle, Zap, Coffee, Flame, Trophy } from 'lucide-react';
+import { CheckCircle, Clock, Award, TrendingUp, Calendar, Mail, FileText, HardDrive, ExternalLink, ArrowUpRight, Sparkles, AlertTriangle, Zap, Coffee, Flame, Trophy, X, Activity } from 'lucide-react';
 import { isSameDay, startOfWeek, addDays, isWithinInterval, endOfDay, startOfDay, format } from 'date-fns';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -302,26 +302,64 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
 
             {/* AI Tip Modal */}
             {isTipOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/40" onClick={() => setIsTipOpen(false)} />
-                    <div ref={tipRef} onClick={(e) => e.stopPropagation()} className="relative z-50 w-full max-w-2xl bg-white rounded-2xl p-6 shadow-2xl">
-                        <div className="flex items-start justify-between gap-4 mb-4">
-                            <div>
-                                <h3 className="text-lg font-display font-bold text-slate-800">Personalized AI Recommendations</h3>
-                                <p className="text-sm text-slate-500">Behavior analysis for the selected week</p>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsTipOpen(false)} />
+                    
+                    <div ref={tipRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-white overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh]">
+                        
+                        {/* Decorative Premium Header Graphic */}
+                        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-br from-violet-600/10 via-fuchsia-600/5 to-transparent pointer-events-none"></div>
+                        <div className="absolute -top-20 -right-20 w-56 h-56 bg-violet-400/20 rounded-full blur-3xl pointer-events-none"></div>
+                        
+                        <div className="p-8 pb-6 relative z-10 flex items-start justify-between gap-4 border-b border-slate-100/50">
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-[1.25rem] flex flex-shrink-0 items-center justify-center shadow-lg shadow-violet-500/30">
+                                    <Sparkles size={26} className="text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-display font-extrabold text-slate-800 tracking-tight">Strategy Insights</h3>
+                                    <p className="text-sm font-semibold text-slate-500 flex items-center gap-2 mt-1">
+                                       <Activity size={14} className="text-violet-500 animate-pulse"/> Behavior analysis for the selected week
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <button onClick={() => setIsTipOpen(false)} className="text-slate-500 hover:text-slate-700 p-2 rounded-lg">Close</button>
-                            </div>
+                            <button onClick={() => setIsTipOpen(false)} className="w-10 h-10 rounded-full bg-white hover:bg-slate-100 text-slate-500 flex items-center justify-center transition-colors shadow-sm border border-slate-200/50 flex-shrink-0">
+                                <X size={20} />
+                            </button>
                         </div>
-                        <div className="max-h-[60vh] overflow-y-auto text-slate-700 leading-relaxed">
-                            {aiLoading ? 'Analyzing your behaviour...' : (
+                        
+                        <div className="p-8 pt-6 overflow-y-auto custom-scrollbar relative z-10 flex-1">
+                            {aiLoading ? (
+                                <div className="space-y-5 animate-pulse pt-2">
+                                    <div className="flex items-center gap-3 mb-4">
+                                       <div className="w-2.5 h-2.5 rounded-full bg-violet-500 animate-ping"></div>
+                                       <div className="h-5 bg-slate-200 rounded-lg w-1/2"></div>
+                                    </div>
+                                    <div className="h-4 bg-slate-100 rounded-lg w-full"></div>
+                                    <div className="h-4 bg-slate-100 rounded-lg w-full"></div>
+                                    <div className="h-4 bg-slate-100 rounded-lg w-4/5"></div>
+                                    <div className="h-4 bg-slate-100 rounded-lg w-full mt-4"></div>
+                                    <div className="h-4 bg-slate-100 rounded-lg w-3/4"></div>
+                                </div>
+                            ) : (
                                 aiTipText ? (
-                                    <div className="prose prose-sm prose-violet max-w-none">
+                                    <div className="prose prose-slate prose-p:text-slate-600 prose-headings:text-slate-800 prose-li:text-slate-600 max-w-none prose-strong:text-indigo-700 prose-li:marker:text-violet-500">
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiTipText}</ReactMarkdown>
                                     </div>
-                                ) : 'No recommendations available.'
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                                        <Sparkles size={40} className="mb-4 opacity-30"/>
+                                        <p className="font-semibold text-lg text-slate-500">No recommendations right now.</p>
+                                    </div>
+                                )
                             )}
+                        </div>
+                        
+                        {/* Footer Action */}
+                        <div className="p-6 bg-slate-50/80 border-t border-slate-100 backdrop-blur-md relative z-10 flex justify-end">
+                            <button onClick={() => setIsTipOpen(false)} className="px-8 py-3.5 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-black hover:to-black text-white font-bold rounded-xl shadow-lg shadow-slate-900/20 active:scale-95 transition-all">
+                                Got it, thanks
+                            </button>
                         </div>
                     </div>
                 </div>
