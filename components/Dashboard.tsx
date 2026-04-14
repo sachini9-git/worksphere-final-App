@@ -497,9 +497,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
                             <button onClick={() => setWeekOffset(weekOffset + 1)} className="px-2 py-1 rounded-md bg-white/50 hover:bg-white text-slate-400 hover:text-indigo-600 transition-colors shadow-sm">▶</button>
                         </div>
                     </div>
-                    <div className="h-72 relative z-10">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={focusData}>
+                    <div className="h-72 relative z-10 outline-none focus:outline-none">
+                        <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none" style={{ outline: 'none' }}>
+                            <BarChart data={focusData} style={{ outline: 'none' }}>
                                 <defs>
                                     <linearGradient id="activeBar" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="0%" stopColor="#f43f5e" stopOpacity={1} />
