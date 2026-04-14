@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { Mail, Lock, Loader2, BookOpen, User as UserIcon, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Loader2, BookOpen, User as UserIcon, CheckCircle2, AlertCircle, Target, Clock, Zap } from 'lucide-react';
 
 export const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -85,13 +85,30 @@ export const Auth: React.FC = () => {
 
           {/* FLOATING 3D-LIKE ELEMENTS */}
           {/* Top Right Floating Pill */}
-          <div className="absolute top-[15%] right-[20%] w-32 h-12 bg-white/40 backdrop-blur-md rounded-full shadow-xl shadow-indigo-500/10 border border-white/60 transform rotate-[15deg] animate-float"></div>
+          <div className="absolute top-[15%] right-[20%] w-32 h-12 bg-white/40 backdrop-blur-md rounded-full shadow-xl shadow-indigo-500/10 border border-white/60 transform rotate-[15deg] animate-float flex items-center justify-center gap-2">
+            <Target size={18} className="text-indigo-500" />
+            <span className="text-xs font-bold text-slate-600">Focus</span>
+          </div>
           
           {/* Bottom Left Floating Square */}
-          <div className="absolute bottom-[20%] left-[15%] w-24 h-24 bg-gradient-to-tr from-violet-400/20 to-fuchsia-400/20 backdrop-blur-xl rounded-3xl shadow-2xl shadow-fuchsia-500/10 border border-white/50 transform -rotate-12 animate-float animation-delay-2000"></div>
+          <div className="absolute bottom-[20%] left-[12%] w-24 h-24 bg-gradient-to-tr from-violet-400/20 to-fuchsia-400/20 backdrop-blur-xl rounded-3xl shadow-2xl shadow-fuchsia-500/10 border border-white/50 transform -rotate-12 animate-float animation-delay-2000 flex items-center justify-center">
+             <Clock size={32} className="text-violet-600 opacity-80" />
+          </div>
           
           {/* Center Left Small Circle */}
-          <div className="absolute top-[40%] left-[25%] w-12 h-12 bg-white/50 backdrop-blur-sm rounded-full shadow-lg shadow-blue-500/10 border border-white/80 animate-pulse animation-delay-4000"></div>
+          <div className="absolute top-[45%] left-[22%] w-14 h-14 bg-white/50 backdrop-blur-sm rounded-full shadow-lg shadow-blue-500/10 border border-white/80 animate-pulse animation-delay-4000 flex items-center justify-center">
+             <Zap size={20} className="text-blue-500" />
+          </div>
+
+          {/* New Top Left Floating Book */}
+          <div className="absolute top-[25%] left-[20%] w-16 h-16 bg-white/60 backdrop-blur-md rounded-2xl shadow-xl shadow-slate-500/10 border border-white/80 transform rotate-[25deg] animate-float animation-delay-2000 flex items-center justify-center">
+             <BookOpen size={24} className="text-indigo-500 opacity-90" />
+          </div>
+
+          {/* New Bottom Right Floating Element */}
+          <div className="absolute bottom-[30%] right-[15%] w-20 h-20 bg-gradient-to-br from-indigo-400/20 to-violet-400/20 backdrop-blur-xl rounded-full shadow-2xl shadow-indigo-500/10 border border-white/50 transform rotate-12 animate-float flex items-center justify-center">
+             <CheckCircle2 size={28} className="text-emerald-500 opacity-80" />
+          </div>
       </div>
 
       {/* FLOATING GLASSMORPHIC FORM CARD */}
