@@ -153,43 +153,6 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }
               </select>
             </div>
 
-            {selectedDoc && documents.find(d => d.id === selectedDoc)?.content && (() => {
-              const docContent = documents.find(d => d.id === selectedDoc)?.content || '';
-              const isPlaceholder = [
-                'click "edit" and paste',
-                'click edit and paste',
-                'click "edit" above and paste',
-                'click edit above and paste',
-                'file attached perfectly',
-                'file attached safely',
-                'paste your own study notes',
-                'paste your actual study notes',
-                'so the ai tutor can read',
-                'text extraction failed',
-                'original pdf content is not available',
-              ].some(phrase => docContent.toLowerCase().includes(phrase.toLowerCase()));
-
-              return (
-                <div className={`rounded-xl p-4 max-h-48 overflow-y-auto border ${isPlaceholder ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'}`}>
-                  <p className={`text-xs font-bold mb-2 uppercase tracking-wider ${isPlaceholder ? 'text-amber-700' : 'text-blue-700'}`}>
-                    {isPlaceholder ? '⚠ Placeholder Text Detected' : '✓ Real Content Detected'}
-                  </p>
-                  <p className={`text-sm leading-relaxed line-clamp-6 ${isPlaceholder ? 'text-amber-900' : 'text-blue-900'}`}>
-                    {docContent.substring(0, 400)}...
-                  </p>
-                  {isPlaceholder ? (
-                    <p className="text-xs text-amber-700 mt-2 font-medium">
-                      File extraction didn't find real content. Click "Edit" in the Library to paste your actual study notes.
-                    </p>
-                  ) : (
-                    <p className="text-xs text-blue-600 mt-2 font-medium">
-                      Your file was successfully read! Click "Generate Flashcards" to create study cards.
-                    </p>
-                  )}
-                </div>
-              );
-            })()}
-
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">
                 Number of Cards: {cardCount}
