@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { generateAIResponse } from '../services/geminiService';
 import { Document, ChatMessage } from '../types';
-import { Send, Bot, User as UserIcon, Loader2, Mic, StopCircle, FileText, Check, X, Sparkles } from 'lucide-react';
+import { Send, Bot, User as UserIcon, Loader2, Mic, StopCircle, FileText, Check, X, Sparkles, Search } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -19,6 +19,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
     const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
     const [isListening, setIsListening] = useState(false);
     const [voiceError, setVoiceError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter documents based on search query
+    const filteredDocsList = contextDocsList.filter(doc =>
+        doc.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const recognitionRef = useRef<any>(null);
@@ -127,15 +133,39 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
             {/* Sidebar: Document Context */}
             <div className="w-80 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden hidden lg:flex h-full">
                 <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-violet-50/80 to-indigo-50/80 backdrop-blur-md">
-                    <h3 className="font-display font-extrabold text-slate-800 text-sm uppercase tracking-wider mb-2 flex items-center gap-2"><FileText size={16} className="text-violet-600" /> Study Context</h3>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed">Select notes to personalize the AI's answers.</p>
+                    <h3 className="font-display font-extrabold text-slate-800 text-sm uppercase tracking-wider mb-3 flex items-center gap-2"><FileText size={16} className="text-violet-600" /> Study Context</h3>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">Select notes to personalize the AI's answers.</p>
+                    
+                    {/* Search Bar */}
+                    <div className="relative group">
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-violet-600 transition-colors" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search notes..."
+                            className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 placeholder-slate-400 font-medium transition-all hover:border-slate-300"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
+                    </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30">
-                    {contextDocsList.length === 0 ? (
+                    {filteredDocsList.length === 0 ? (
                         <div className="p-8 text-center text-slate-400 text-sm font-medium border-2 border-dashed border-slate-200 rounded-2xl">
-                            No notes found.<br />Create notes in the Library to use them here.
+                            {searchQuery ? (
+                                <>No matches found.<br />Try a different search.</>
+                            ) : (
+                                <>No notes found.<br />Create notes in the Library to use them here.</>
+                            )}
                         </div>
-                    ) : contextDocsList.map(doc => (
+                    ) : filteredDocsList.map(doc => (
                         <div
                             key={doc.id}
                             onClick={() => toggleDocSelection(doc.id)}
