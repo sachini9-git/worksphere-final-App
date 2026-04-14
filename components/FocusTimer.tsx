@@ -209,7 +209,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
             <div className={`rounded-[3rem] w-full overflow-hidden transition-all duration-1000 ${containerBg} relative z-10 border shadow-2xl`}>
 
                 {/* Header */}
-                <div className={`p-4 flex justify-between items-center border-b transition-colors duration-1000 ${isFocus ? 'bg-violet-50/50 border-violet-100/50' : 'bg-emerald-50/50 border-emerald-100/50'} backdrop-blur-md`}>
+                <div className={`p-3 flex justify-between items-center border-b transition-colors duration-1000 ${isFocus ? 'bg-violet-50/50 border-violet-100/50' : 'bg-emerald-50/50 border-emerald-100/50'} backdrop-blur-md`}>
                     <div className="flex items-center gap-3">
                         <div className={`w-3 h-3 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.2)] ${isActive ? 'animate-pulse' : ''} ${isFocus ? 'bg-violet-500 shadow-violet-500/50' : 'bg-emerald-500'}`}></div>
                         {isFocus ? (
@@ -237,7 +237,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                 </div>
 
                 {/* Focus Zone UI & Timer Display Compacted */}
-                <div className="px-6 pt-6 pb-8 flex flex-col items-center animate-in fade-in slide-in-from-top-2 relative">
+                <div className="px-4 pt-4 pb-5 flex flex-col items-center animate-in fade-in slide-in-from-top-2 relative">
                     
                     {/* Floating Zone Goal Config */}
                     <div className={`absolute top-6 left-6 flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all duration-500 shadow-sm backdrop-blur-md z-30 ${isFocusZoneActive
@@ -295,7 +295,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                     )}
 
                     {/* Timer SVG Stack */}
-                    <div className="mt-20 flex flex-col items-center">
+                    <div className="mt-10 flex flex-col items-center">
                         {isEditingTime ? (
                             <div className="flex items-center gap-4 animate-in fade-in scale-95 h-[320px] mb-8">
                                 <input
@@ -390,7 +390,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
                         {/* Presets Row Compacted */}
                         {!isActive && !isEditingTime && (
-                            <div className="flex flex-wrap justify-center gap-2 mb-8 z-20 bg-white/60 p-1.5 rounded-3xl border border-white/80 shadow-[0_2px_10px_rgb(0,0,0,0.02)] backdrop-blur-md">
+                            <div className="flex flex-wrap justify-center gap-2 mb-5 z-20 bg-white/60 p-1.5 rounded-3xl border border-white/80 shadow-[0_2px_10px_rgb(0,0,0,0.02)] backdrop-blur-md">
                                 {isFocus ? (
                                     [25, 45, 60].map(mins => (
                                         <button key={mins} onClick={() => setPreset(mins)} className={`px-4 py-2 rounded-[1.25rem] text-sm font-black transition-all ${config.focusDuration === mins ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20' : 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}>{mins}m</button>
@@ -407,7 +407,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                         <div className="flex items-center gap-3 w-full max-w-[340px] relative z-20">
                             <button
                                 onClick={toggleTimer}
-                                className={`flex-[2] flex items-center justify-center gap-3 py-5 rounded-[1.5rem] text-white font-black text-lg shadow-xl transition-all transform hover:scale-[1.02] active:scale-95 relative overflow-hidden group ${isActive ? 'bg-amber-500 shadow-amber-500/30' : `${accentColor} ${isFocus ? 'shadow-violet-600/30' : 'shadow-emerald-500/20'}`}`}
+                                className={`flex-[2] flex items-center justify-center gap-3 py-4 rounded-[1.5rem] text-white font-black text-lg shadow-xl transition-all transform hover:scale-[1.02] active:scale-95 relative overflow-hidden group ${isActive ? 'bg-amber-500 shadow-amber-500/30' : `${accentColor} ${isFocus ? 'shadow-violet-600/30' : 'shadow-emerald-500/20'}`}`}
                             >
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-white transition-opacity w-full h-full"></div>
                                 {isActive ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
@@ -417,7 +417,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                             {!isActive && isFocus && (
                                 <button
                                     onClick={startBreak}
-                                    className="flex-1 flex justify-center py-5 rounded-[1.5rem] bg-white text-violet-400 hover:bg-violet-50 hover:text-violet-600 transition-all border border-violet-100/50 shadow-sm shadow-violet-500/5 group"
+                                    className="flex-1 flex justify-center py-4 rounded-[1.5rem] bg-white text-violet-400 hover:bg-violet-50 hover:text-violet-600 transition-all border border-violet-100/50 shadow-sm shadow-violet-500/5 group"
                                     title="Start Break Immediately"
                                 >
                                     <Coffee size={24} className="group-hover:rotate-12 transition-transform" />
@@ -427,7 +427,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                             {!isActive && !isFocus && (
                                 <button
                                     onClick={skipBreak}
-                                    className="flex-1 flex justify-center py-5 rounded-[1.5rem] bg-white text-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-emerald-100/50 shadow-sm shadow-emerald-500/5 group"
+                                    className="flex-1 flex justify-center py-4 rounded-[1.5rem] bg-white text-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-emerald-100/50 shadow-sm shadow-emerald-500/5 group"
                                     title="Skip Break"
                                 >
                                     <SkipForward size={24} className="group-hover:translate-x-1 transition-transform" />
@@ -436,7 +436,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
                             <button
                                 onClick={resetTimer}
-                                className="flex-1 flex justify-center py-5 rounded-[1.5rem] transition-all border shadow-sm bg-white border-slate-100 text-slate-400 hover:bg-slate-50 hover:text-slate-600 group"
+                                className="flex-1 flex justify-center py-4 rounded-[1.5rem] transition-all border shadow-sm bg-white border-slate-100 text-slate-400 hover:bg-slate-50 hover:text-slate-600 group"
                                 title="Reset Timer"
                             >
                                 <RotateCcw size={24} className="group-hover:-rotate-90 transition-transform duration-500" />
