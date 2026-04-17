@@ -29,7 +29,7 @@ const App: React.FC = () => {
         onboardingComplete, setOnboardingComplete, activeTab, setActiveTab,
         tasks, setTasks, documents, setDocuments, folders, setFolders,
         sessions, setSessions, chatHistory, setChatHistory, addChatMessage,
-        userXP, setUserXP
+        userXP, setUserXP, schedule, setSchedule
     } = useAppStore();
 
     // Focus Timer State (Lifted)
@@ -223,6 +223,16 @@ const App: React.FC = () => {
                             setChatHistory([]);
                         }
                     }
+
+                    const loadedSchedule = localStorage.getItem(`workSphere_schedule_${user.id}`);
+                    if (loadedSchedule) {
+                        try {
+                            setSchedule(JSON.parse(loadedSchedule));
+                        } catch (e) {
+                            console.error("Failed to parse schedule:", e);
+                            setSchedule([]);
+                        }
+                    }
                     
                     const loadedXP = localStorage.getItem(`workSphere_xp_${user.id}`);
                     if (loadedXP) {
@@ -242,6 +252,12 @@ const App: React.FC = () => {
             setDataLoadedForUserId(null);
         }
     }, [user, dataLoadedForUserId]);
+
+    // Save Schedule (Local)
+    useEffect(() => {
+        if (!user) return;
+        localStorage.setItem(`workSphere_schedule_${user.id}`, JSON.stringify(schedule));
+    }, [schedule, user]);
 
     // Save Chat History (Local) & XP (Cloud + Local)
     useEffect(() => {
