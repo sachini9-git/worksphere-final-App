@@ -44,7 +44,22 @@ export const generateFlashcards = async (
       alert('🛑 Google API Quota Exceeded. Please generate a new key using a DIFFERENT Google Account.');
       return [];
     }
-    alert(`Could not generate flashcards: ${e.message || 'Ensure the backend server is running.'}`);
+    if (e.message?.includes('503') || e.message?.toLowerCase().includes('high demand') || e.message?.includes('UNAVAILABLE')) {
+      alert('⏳ The AI model is currently experiencing high demand. Please try again in a few moments.');
+      return [];
+    }
+    
+    // Attempt to parse out ugly JSON if present
+    let cleanMessage = e.message;
+    try {
+        if (cleanMessage.startsWith('{')) {
+            const parsed = JSON.parse(cleanMessage);
+            if (parsed.message) cleanMessage = parsed.message;
+            else if (parsed.error && parsed.error.message) cleanMessage = parsed.error.message;
+        }
+    } catch (_) {}
+
+    alert(`Could not generate flashcards: ${cleanMessage}`);
     return [];
   }
 };
@@ -94,7 +109,22 @@ export const generateQuiz = async (
       alert('🛑 Google API Quota Exceeded. Please generate a new key using a DIFFERENT Google Account.');
       return [];
     }
-    alert(`Could not generate quiz: ${e.message || 'Ensure the backend server is running.'}`);
+    if (e.message?.includes('503') || e.message?.toLowerCase().includes('high demand') || e.message?.includes('UNAVAILABLE')) {
+      alert('⏳ The AI model is currently experiencing high demand. Please try again in a few moments.');
+      return [];
+    }
+    
+    // Attempt to parse out ugly JSON if present
+    let cleanMessage = e.message;
+    try {
+        if (cleanMessage.startsWith('{')) {
+            const parsed = JSON.parse(cleanMessage);
+            if (parsed.message) cleanMessage = parsed.message;
+            else if (parsed.error && parsed.error.message) cleanMessage = parsed.error.message;
+        }
+    } catch (_) {}
+
+    alert(`Could not generate quiz: ${cleanMessage}`);
     return [];
   }
 };
