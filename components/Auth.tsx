@@ -111,6 +111,22 @@ export const Auth: React.FC = () => {
           </div>
       </div>
 
+      {/* MESSAGE TOAST (Fixed global outside of all filters and overflow containers) */}
+      {message && (
+         <div className={`fixed top-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-4 rounded-xl text-sm font-bold border flex items-start justify-center gap-3 animate-in slide-in-from-top-4 fade-in shadow-2xl z-[100] ${
+             message.type === 'success' 
+             ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+             : 'bg-rose-50 text-rose-600 border-rose-200'
+         }`}>
+            {message.type === 'success' ? (
+                <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0 mt-0.5" />
+            ) : (
+                <AlertCircle size={18} className="text-rose-500 flex-shrink-0 mt-0.5" />
+            )}
+            <span className="leading-tight text-center">{message.text}</span>
+         </div>
+      )}
+
       {/* FLOATING GLASSMORPHIC FORM CARD */}
       <div className="w-full max-w-[440px] mx-4 relative z-10 animate-in fade-in zoom-in-[0.98] duration-700 ease-out">
         
@@ -118,22 +134,6 @@ export const Auth: React.FC = () => {
           
           {/* Subtle interior glare */}
           <div className="absolute top-0 left-0 w-full h-[200px] bg-gradient-to-b from-white/60 to-transparent pointer-events-none"></div>
-
-          {/* MESSAGE TOAST (Fixed global to prevent getting cut off by overflow-hidden) */}
-          {message && (
-             <div className={`fixed top-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-4 rounded-xl text-sm font-bold border flex items-start justify-center gap-3 animate-in slide-in-from-top-4 fade-in shadow-2xl z-[100] ${
-                 message.type === 'success' 
-                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                 : 'bg-rose-50 text-rose-600 border-rose-200'
-             }`}>
-                {message.type === 'success' ? (
-                    <CheckCircle2 size={18} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                ) : (
-                    <AlertCircle size={18} className="text-rose-500 flex-shrink-0 mt-0.5" />
-                )}
-                <span className="leading-tight text-center">{message.text}</span>
-             </div>
-          )}
 
           <div className="flex flex-col items-center text-center mb-8 relative z-10">
             {/* Branding - Worksphere + Icon */}
