@@ -119,9 +119,9 @@ export const Auth: React.FC = () => {
           {/* Subtle interior glare */}
           <div className="absolute top-0 left-0 w-full h-[200px] bg-gradient-to-b from-white/60 to-transparent pointer-events-none"></div>
 
-          {/* MESSAGE TOAST (Absolute floating to prevent layout shift without leaving empty space) */}
+          {/* MESSAGE TOAST (Fixed global to prevent getting cut off by overflow-hidden) */}
           {message && (
-             <div className={`absolute top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm p-4 rounded-xl text-sm font-bold border flex items-start justify-center gap-3 animate-in slide-in-from-top-4 fade-in shadow-lg z-50 ${
+             <div className={`fixed top-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-4 rounded-xl text-sm font-bold border flex items-start justify-center gap-3 animate-in slide-in-from-top-4 fade-in shadow-2xl z-[100] ${
                  message.type === 'success' 
                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
                  : 'bg-rose-50 text-rose-600 border-rose-200'
