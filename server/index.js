@@ -37,6 +37,18 @@ const getAI = () => {
   return new GoogleGenAI({ apiKey: freshKey });
 };
 
+// Robust helper to cleanly extract JSON objects/arrays directly from markdown
+const robustJSONParse = (text) => {
+  if (!text) return null;
+  const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  const cleanStr = match ? match[0] : text;
+  try {
+    return JSON.parse(cleanStr);
+  } catch (err) {
+    return null;
+  }
+};
+
 app.post('/api/summarize', async (req, res) => {
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
   const { content } = req.body;
@@ -90,12 +102,7 @@ app.post('/api/flashcards', async (req, res) => {
     const prompt = `Generate exactly ${count || 5} flashcards from the following study material. Return ONLY a JSON array with no markdown formatting. Each flashcard must have \"question\", \"answer\", and \"difficulty\" (easy/medium/hard) properties. Material:\n\n${document.content}`;
     const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
-    // Clean markdown code blocks if the model accidentally returns them
-    let rawText = response.text || '[]';
-    if (rawText.startsWith('```json')) rawText = rawText.replace('```json', '').replace('```', '');
-    else if (rawText.startsWith('```')) rawText = rawText.replace(/```/g, '');
-
-    const parsed = JSON.parse(rawText.trim());
+    const parsed = robustJSONParse(response.text) || [];
     const cards = Array.isArray(parsed) ? parsed.map((card, idx) => ({
       id: `${document.id}-${Date.now()}-${idx}`,
       question: card.question || '',
@@ -122,12 +129,7 @@ app.post('/api/quiz', async (req, res) => {
     const prompt = `Generate exactly ${questionCount || 5} multiple choice quiz questions from the following study materials. Return ONLY a JSON array with no markdown. Materials:\n\n${contextText}`;
     const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
-    // Clean markdown code blocks
-    let rawText = response.text || '[]';
-    if (rawText.startsWith('```json')) rawText = rawText.replace('```json', '').replace('```', '');
-    else if (rawText.startsWith('```')) rawText = rawText.replace(/```/g, '');
-
-    const parsed = JSON.parse(rawText.trim());
+    const parsed = robustJSONParse(response.text) || [];
     const questions = Array.isArray(parsed) ? parsed.map((q, idx) => ({
       id: `quiz-${Date.now()}-${idx}`,
       question: q.question || '',
@@ -198,18 +200,7 @@ app.post('/api/auto-schedule', async (req, res) => {
       config: { systemInstruction: "You are a JSON-only return bot. Never output markdown." }
     });
     
-    let cleanText = response.text ? response.text.trim() : '[]';
-    if (cleanText.startsWith('```json')) {
-       cleanText = cleanText.substring(7);
-    }
-    if (cleanText.startsWith('```')) {
-       cleanText = cleanText.substring(3);
-    }
-    if (cleanText.endsWith('```')) {
-       cleanText = cleanText.substring(0, cleanText.length - 3);
-    }
-
-    const parsed = JSON.parse(cleanText.trim());
+    const parsed = robustJSONParse(response.text) || [];
     res.json({ schedule: parsed });
   } catch (e) {
     console.error('Auto schedule error', e.message);
@@ -248,6 +239,49 @@ app.post('/api/proactive-tutor', async (req, res) => {
   } catch (e) {
     console.error('Proactive tutor error', e.message);
     res.status(500).json({ error: e.message || 'AI error' });
+  }
+});
+
+// Study tips endpoint
+app.post('/api/studytips', async (req, res) => {
+  if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+  const { documents, userStats } = req.body;
+
+  try {
+    const ai = getAI();
+    const docSummary = (documents || []).map((d) => d.title).join(", ");
+    const streakInfo = userStats
+      ? `User has a ${userStats.studyStreak} day streak and has studied ${userStats.totalMinutesStudied} minutes total.`
+      : "New user starting their study journey.";
+
+    const prompt = `Generate ONE motivational and actionable study tip based on these contexts:
+    Topics: ${docSummary}
+    ${streakInfo}
+    
+    Return ONLY a JSON object with no markdown, no code blocks:
+    {"title": "Short title (3-5 words)", "content": "Detailed tip (2-3 sentences)", "category": "topic-specific", "topics": ["topic1", "topic2"]}
+    
+    Make it specific to the study materials mentioned, encouraging, and practical.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    const parsed = robustJSONParse(response.text) || {};
+    res.json({ 
+      tip: {
+        id: `tip-${Date.now()}`,
+        title: parsed.title || "Study Success Tip",
+        content: parsed.content || "Focus on one topic at a time for better retention and understanding.",
+        category: parsed.category || "motivation",
+        topics: parsed.topics || [],
+        timestamp: new Date().toISOString()
+      } 
+    });
+  } catch (error) {
+    console.error("Study Tip Generation Error:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -15,6 +15,7 @@ interface TaskManagerProps {
 
 export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, updateTask, deleteTask }) => {
     const [newTaskTitle, setNewTaskTitle] = useState('');
+    const [titleError, setTitleError] = useState(false);
     const [newTaskDate, setNewTaskDate] = useState('');
     const [newTaskReminder, setNewTaskReminder] = useState('');
     const [showReminderInput, setShowReminderInput] = useState(false);
@@ -45,7 +46,11 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newTaskTitle.trim()) return;
+        if (!newTaskTitle.trim()) {
+            setTitleError(true);
+            setTimeout(() => setTitleError(false), 2000);
+            return;
+        }
 
         // Determine final category
         const finalCategory = selectedCategory === 'Other' ? (customCategory.trim() || 'General') : selectedCategory;
@@ -395,15 +400,18 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
 
                 {/* New Task Input */}
                 <form onSubmit={handleSubmit} className="relative group">
-                    <div className="relative bg-slate-50/50 p-2.5 rounded-[1.5rem] border border-slate-200 focus-within:border-violet-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-violet-500/10 transition-all duration-300 flex flex-col xl:flex-row xl:items-center gap-3 shadow-inner">
+                    <div className={`relative bg-slate-50/50 p-2.5 rounded-[1.5rem] border ${titleError ? 'border-rose-400 ring-4 ring-rose-500/10' : 'border-slate-200 focus-within:border-violet-400 focus-within:ring-4 focus-within:ring-violet-500/10'} focus-within:bg-white transition-all duration-300 flex flex-col xl:flex-row xl:items-center gap-3 shadow-inner`}>
                         <div className="flex-1 flex items-center px-4">
-                            <Plus className="text-violet-500 mr-3 flex-shrink-0" size={24} strokeWidth={3} />
+                            <Plus className={`${titleError ? 'text-rose-500' : 'text-violet-500'} mr-3 flex-shrink-0 transition-colors`} size={24} strokeWidth={3} />
                             <input
                                 type="text"
-                                placeholder="What needs to be done?"
-                                className="w-full py-3 outline-none text-slate-800 placeholder-slate-400 font-medium text-lg bg-transparent"
+                                placeholder={titleError ? "Please enter a task title!" : "What needs to be done?"}
+                                className={`w-full py-3 outline-none font-medium text-lg bg-transparent transition-colors ${titleError ? 'text-rose-600 placeholder-rose-500/70' : 'text-slate-800 placeholder-slate-400'}`}
                                 value={newTaskTitle}
-                                onChange={(e) => setNewTaskTitle(e.target.value)}
+                                onChange={(e) => {
+                                    setNewTaskTitle(e.target.value);
+                                    if (titleError) setTitleError(false);
+                                }}
                             />
                         </div>
                         <div className="flex flex-wrap items-center gap-2 px-3 pb-2 xl:pb-0">
@@ -517,8 +525,8 @@ export const TaskManager: React.FC<TaskManagerProps> = ({ tasks, addTask, update
             </div>
 
             {/* Kanban Columns */}
-            <div className="flex-1 overflow-x-auto pb-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-full min-w-[900px] md:min-w-0">
+            <div className="flex-1 overflow-x-hidden pb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-full">
 
                     <div
                         className={`flex flex-col h-full group transition-colors duration-200 ${dragOverColumn === 'high' ? 'bg-rose-50/50 rounded-2xl ring-2 ring-rose-200' : ''}`}
