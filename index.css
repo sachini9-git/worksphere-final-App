@@ -103,13 +103,13 @@
 }
 
 @keyframes float {
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
+  0%, 100% { transform: translateY(0px) translateZ(0); }
+  50% { transform: translateY(-15px) translateZ(0); }
 }
 
 .animate-float {
-  animation: float 3.5s ease-in-out infinite;
+  animation: float 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* Remove default focus outline from Recharts clicked */
