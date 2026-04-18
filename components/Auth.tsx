@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { Mail, Lock, Loader2, BookOpen, User as UserIcon, CheckCircle2, AlertCircle, Target, Clock, Zap } from 'lucide-react';
+import { Mail, Lock, Loader2, BookOpen, User as UserIcon, CheckCircle2, AlertCircle, Target, Clock, Zap, LayoutDashboard, Brain, MessageSquare, Layers, Sparkles } from 'lucide-react';
 
 export const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -83,32 +83,45 @@ export const Auth: React.FC = () => {
           {/* Grid pattern overlay for texture */}
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '32px 32px', opacity: 0.3 }}></div>
 
-          {/* FLOATING 3D-LIKE ELEMENTS */}
-          {/* Top Right Floating Pill */}
-          <div className="absolute top-[15%] right-[20%] w-32 h-12 bg-white/40 backdrop-blur-md rounded-full shadow-xl shadow-indigo-500/10 border border-white/60 transform rotate-[15deg] animate-float flex items-center justify-center gap-2">
-            <Target size={18} className="text-indigo-500" />
-            <span className="text-xs font-bold text-slate-600">Focus</span>
+          {/* DEEP AMBIENT GLOWS (ORBS) */}
+          <div className="absolute top-[-10%] right-[0%] w-[600px] h-[600px] bg-violet-500/40 rounded-full blur-[100px] pointer-events-none animate-pulse hidden lg:block z-0"></div>
+          <div className="absolute bottom-[-10%] right-[20%] w-[700px] h-[700px] bg-sky-500/30 rounded-full blur-[100px] pointer-events-none animate-pulse animation-delay-4000 hidden lg:block z-0"></div>
+          <div className="absolute top-[30%] right-[35%] w-[500px] h-[500px] bg-fuchsia-500/30 rounded-full blur-[100px] pointer-events-none animate-pulse animation-delay-2000 hidden lg:block z-0"></div>
+
+          {/* FLOATING 3D ELEMENTS - BALANCED 5-POINT DIAGRAM (PENTAGON) */}
+          
+          {/* Vertex 1: Top Center of Right Section */}
+          <div className="absolute top-[18%] right-[20%] lg:right-[25%] w-32 h-12 bg-white/40 backdrop-blur-md rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60 transform rotate-[4deg] animate-float flex items-center justify-center gap-2 hover:scale-110 hover:-rotate-2 transition-all duration-500 z-0 text-indigo-600 font-bold text-xs cursor-default">
+            <Sparkles size={16} className="text-indigo-500" />
+            <span>AI Powered</span>
+          </div>
+
+          {/* Vertex 2: Mid Right (outer edge) */}
+          <div className="absolute top-[38%] right-[4%] lg:right-[6%] w-16 h-16 bg-white/40 backdrop-blur-md rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60 transform rotate-[25deg] animate-float animation-delay-2000 flex items-center justify-center hover:scale-110 hover:-rotate-12 transition-all duration-500 z-0 cursor-default">
+             <BookOpen size={24} className="text-violet-500" />
           </div>
           
-          {/* Bottom Left Floating Square */}
-          <div className="absolute bottom-[20%] left-[12%] w-24 h-24 bg-gradient-to-tr from-violet-400/20 to-fuchsia-400/20 backdrop-blur-xl rounded-3xl shadow-2xl shadow-fuchsia-500/10 border border-white/50 transform -rotate-12 animate-float animation-delay-2000 flex items-center justify-center">
-             <Clock size={32} className="text-violet-600 opacity-80" />
+          {/* Vertex 3: Bottom Right */}
+          <div className="absolute bottom-[20%] right-[10%] lg:right-[15%] w-16 h-16 bg-white/40 backdrop-blur-md rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60 transform rotate-12 animate-float flex items-center justify-center hover:scale-110 hover:-rotate-6 transition-all duration-500 z-0 cursor-default">
+             <Target size={24} className="text-emerald-500" />
           </div>
-          
-          {/* Center Left Small Circle */}
-          <div className="absolute top-[45%] left-[22%] w-14 h-14 bg-white/50 backdrop-blur-sm rounded-full shadow-lg shadow-blue-500/10 border border-white/80 animate-pulse animation-delay-4000 flex items-center justify-center">
+
+          {/* Vertex 4: Bottom Left (inner edge) */}
+          <div className="absolute bottom-[20%] right-[38%] lg:right-[42%] w-16 h-16 bg-white/40 backdrop-blur-md rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60 transform -rotate-12 animate-float animation-delay-2000 flex items-center justify-center hover:scale-110 hover:rotate-6 transition-all duration-500 z-0 cursor-default">
+             <Brain size={24} className="text-fuchsia-500" />
+          </div>
+
+          {/* Vertex 5: Mid Left (inner edge near form) */}
+          <div className="absolute top-[38%] right-[42%] lg:right-[46%] w-14 h-14 bg-white/40 backdrop-blur-sm rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white/60 animate-float animation-delay-4000 flex items-center justify-center hover:scale-110 transition-all duration-500 z-0 cursor-default">
              <Zap size={20} className="text-blue-500" />
           </div>
-
-          {/* New Top Left Floating Book */}
-          <div className="absolute top-[25%] left-[20%] w-16 h-16 bg-white/60 backdrop-blur-md rounded-2xl shadow-xl shadow-slate-500/10 border border-white/80 transform rotate-[25deg] animate-float animation-delay-2000 flex items-center justify-center">
-             <BookOpen size={24} className="text-indigo-500 opacity-90" />
-          </div>
-
-          {/* New Bottom Right Floating Element */}
-          <div className="absolute bottom-[30%] right-[15%] w-20 h-20 bg-gradient-to-br from-indigo-400/20 to-violet-400/20 backdrop-blur-xl rounded-full shadow-2xl shadow-indigo-500/10 border border-white/50 transform rotate-12 animate-float flex items-center justify-center">
-             <CheckCircle2 size={28} className="text-emerald-500 opacity-80" />
-          </div>
+      </div>
+      
+      {/* GLOBAL FOOTER COPYRIGHT */}
+      <div className="absolute bottom-6 left-0 w-full text-center z-10 pointer-events-none opacity-60">
+          <p className="text-[11px] font-semibold text-slate-500 tracking-wide">
+             © {new Date().getFullYear()} WorkSphere AI. Your intelligent workspace.
+          </p>
       </div>
 
       {/* MESSAGE TOAST (Fixed global outside of all filters and overflow containers) */}
@@ -127,10 +140,25 @@ export const Auth: React.FC = () => {
          </div>
       )}
 
-      {/* FLOATING GLASSMORPHIC FORM CARD */}
-      <div className="w-full max-w-[440px] mx-4 relative z-10 animate-in fade-in zoom-in-[0.98] duration-700 ease-out">
+      {/* SPLIT LAYOUT CONTAINER (flex-row-reverse swaps DOM order on Desktop) */}
+      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row-reverse items-center justify-center lg:justify-between px-4 lg:px-12 gap-8 lg:gap-20">
+        {/* RIGHT TEXT PANEL - Hidden on mobile */}
+        <div className="hidden lg:flex flex-col flex-1 max-w-lg mb-10 lg:mb-0 animate-in slide-in-from-right-8 fade-in duration-1000 items-center justify-center text-center relative z-10 w-full pl-6">
+             
+             <h2 className="text-4xl xl:text-5xl font-display font-black text-slate-800 tracking-tight flex flex-col gap-3 lg:gap-4 items-center justify-center mb-8 w-full">
+                <span>Elevate your focus.</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600 pb-1">Accelerate growth.</span>
+             </h2>
+
+             <p className="text-slate-500 font-medium text-[15px] lg:text-base leading-relaxed max-w-sm mx-auto relative z-10 pt-2">
+                Unlock your full potential with an intelligent workspace designed to eliminate distractions, accelerate learning, and build unbreakable productivity streaks.
+             </p>
+        </div>
+
+        {/* LEFT FLOATING GLASSMORPHIC FORM CARD */}
+        <div className="w-full max-w-[480px] relative animate-in fade-in zoom-in-[0.98] duration-700 ease-out flex-shrink-0">
         
-        <div className="bg-white/70 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(76,29,149,0.15)] border border-white/80 p-8 sm:px-10 sm:py-12 relative overflow-hidden flex flex-col min-h-[500px]">
+        <div className="bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_60px_-15px_rgba(139,92,246,0.25)] ring-1 ring-white/60 p-8 sm:px-10 sm:py-12 relative overflow-hidden flex flex-col min-h-[500px]">
           
           {/* Subtle interior glare */}
           <div className="absolute top-0 left-0 w-full h-[200px] bg-gradient-to-b from-white/60 to-transparent pointer-events-none"></div>
@@ -138,7 +166,7 @@ export const Auth: React.FC = () => {
           <div className="flex flex-col items-center text-center mb-8 relative z-10">
             {/* Branding - Worksphere + Icon */}
             <div className="flex items-center gap-3 mb-6 bg-white/50 py-2 px-5 rounded-full border border-white/60 shadow-sm backdrop-blur-sm">
-               <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-violet-500/30">
+               <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.4)]">
                  <BookOpen size={16} className="text-white" />
                </div>
                <span className="font-display font-black text-xl text-slate-800 tracking-tight">WorkSphere</span>
@@ -166,7 +194,7 @@ export const Auth: React.FC = () => {
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3.5 bg-white/80 border border-slate-200/60 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-300 focus:bg-white focus:ring-4 focus:ring-violet-500/15 focus:border-violet-500 transition-all outline-none shadow-sm"
+                        className="w-full pl-11 pr-4 py-3.5 bg-white/90 border border-slate-200/50 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-4 focus:ring-violet-500/20 focus:border-violet-400 focus:shadow-[0_0_20px_-5px_rgba(139,92,246,0.15)] transition-all outline-none shadow-sm"
                         placeholder="John Doe"
                         required={!isLogin}
                     />
@@ -184,7 +212,7 @@ export const Auth: React.FC = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 bg-white/80 border border-slate-200/60 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-300 focus:bg-white focus:ring-4 focus:ring-violet-500/15 focus:border-violet-500 transition-all outline-none shadow-sm"
+                    className="w-full pl-11 pr-4 py-3.5 bg-white/90 border border-slate-200/50 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-4 focus:ring-violet-500/20 focus:border-violet-400 focus:shadow-[0_0_20px_-5px_rgba(139,92,246,0.15)] transition-all outline-none shadow-sm"
                     placeholder="student@university.edu"
                     required
                     />
@@ -204,7 +232,7 @@ export const Auth: React.FC = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3.5 bg-white/80 border border-slate-200/60 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-300 focus:bg-white focus:ring-4 focus:ring-violet-500/15 focus:border-violet-500 transition-all outline-none shadow-sm"
+                    className="w-full pl-11 pr-4 py-3.5 bg-white/90 border border-slate-200/50 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-4 focus:ring-violet-500/20 focus:border-violet-400 focus:shadow-[0_0_20px_-5px_rgba(139,92,246,0.15)] transition-all outline-none shadow-sm"
                     placeholder="••••••••"
                     required
                     />
@@ -216,7 +244,7 @@ export const Auth: React.FC = () => {
                 <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold py-4 rounded-2xl shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:-translate-y-0.5 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold tracking-wide py-4 rounded-2xl shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] hover:-translate-y-0.5 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                 {loading ? (
                     <Loader2 size={20} className="animate-spin" />
@@ -240,6 +268,7 @@ export const Auth: React.FC = () => {
               {isLogin ? "Don't have an account? " : "Already have an account? "}
               <span className="text-violet-600">{isLogin ? "Sign up" : "Sign in"}</span>
             </button>
+          </div>
           </div>
         </div>
       </div>
