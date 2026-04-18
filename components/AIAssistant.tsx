@@ -129,7 +129,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
     };
 
     return (
-        <div className="flex h-screen gap-8 max-h-screen overflow-hidden">
+        <div className="flex gap-8 overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
             {/* Sidebar: Document Context */}
             <div className="w-80 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden hidden lg:flex h-full">
                 <div className="p-5 border-b border-slate-100 bg-gradient-to-r from-violet-50/80 to-indigo-50/80 backdrop-blur-md">
@@ -206,12 +206,12 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ documents, history, ad
 
                 <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/30">
                     {history.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-full text-center p-4 opacity-80 animate-in fade-in zoom-in-95 duration-500 relative">
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-violet-400/10 rounded-full blur-[80px] pointer-events-none animate-blob"></div>
-                            <div className="w-20 h-20 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-[2.5rem] flex items-center justify-center mb-4 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative z-10">
-                                <Bot size={40} className="text-white drop-shadow-md" />
+                        <div className="flex flex-col items-center justify-center text-center py-12 px-4 opacity-80 animate-in fade-in zoom-in-95 duration-500 relative">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-violet-400/10 rounded-full blur-[60px] pointer-events-none animate-blob"></div>
+                            <div className="w-16 h-16 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-[1.5rem] flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(139,92,246,0.3)] relative z-10">
+                                <Bot size={32} className="text-white drop-shadow-md" />
                             </div>
-                            <h2 className="text-xl font-display font-extrabold text-slate-800 mb-2">Your Personal Study Partner</h2>
+                            <h2 className="text-lg font-display font-extrabold text-slate-800 mb-1.5">Your Personal Study Partner</h2>
                             <p className="text-slate-500 font-medium max-w-sm leading-relaxed text-sm">
                                 I can quiz you, summarize your notes, or explain complex topics simply. Just ask!
                             </p>
