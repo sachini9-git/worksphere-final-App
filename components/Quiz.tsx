@@ -236,13 +236,13 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
                   placeholder="Search documents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm bg-slate-50"
+                  className="w-full pl-9 p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm bg-slate-50"
                 />
               </div>
               <select
                 value={selectedDoc}
                 onChange={(e) => setSelectedDoc(e.target.value)}
-                className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-slate-800"
+                className="w-full p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-slate-800"
               >
                 {documents.filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set' && d.title.toLowerCase().includes(searchQuery.toLowerCase())).map((doc) => (
                   <option key={doc.id} value={doc.id}>
