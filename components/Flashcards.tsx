@@ -87,9 +87,9 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-violet-500/10 border border-violet-100/50"
+      className="w-full max-w-2xl mx-auto p-5 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-violet-500/10 border border-violet-100/50"
     >
-      <div className="flex items-center gap-4 mb-8 justify-between">
+      <div className="flex items-center gap-4 mb-4 justify-between">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-violet-500/30">
             <BookOpen size={24} />
@@ -184,10 +184,10 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }
           </motion.button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Card */}
           <div
-            className="h-80 w-full cursor-pointer relative"
+            className="h-64 w-full cursor-pointer relative"
             style={{ perspective: "1000px" }}
             onClick={() => setIsFlipped(!isFlipped)}
           >
@@ -200,14 +200,14 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }
             >
               {/* Front of card */}
               <div
-                className="absolute inset-0 bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow border-2 border-violet-200"
+                className="absolute inset-0 bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow border-2 border-violet-200"
                 style={{ backfaceVisibility: "hidden" }}
               >
                 <div className="text-center flex flex-col justify-center items-center h-full">
                   <p className="text-xs font-bold text-violet-600 uppercase tracking-wider mb-3">
                     Question
                   </p>
-                  <p className="text-2xl font-bold text-slate-800 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar">
+                  <p className="text-xl font-bold text-slate-800 leading-relaxed overflow-y-auto max-h-[120px] custom-scrollbar">
                     {currentCard?.question}
                   </p>
                 </div>
@@ -216,14 +216,14 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }
 
               {/* Back of card */}
               <div
-                className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow border-2 border-indigo-200"
+                className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl p-6 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow border-2 border-indigo-200"
                 style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
               >
                 <div className="text-center flex flex-col justify-center items-center h-full">
                   <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-3">
                     Answer
                   </p>
-                  <p className="text-2xl font-bold text-slate-800 leading-relaxed overflow-y-auto max-h-[160px] custom-scrollbar">
+                  <p className="text-xl font-bold text-slate-800 leading-relaxed overflow-y-auto max-h-[120px] custom-scrollbar">
                     {currentCard?.answer}
                   </p>
                 </div>
@@ -279,7 +279,7 @@ export const Flashcards: React.FC<FlashcardsProps> = ({ documents, addDocument }
             </button>
           </div>
 
-          <div className="flex gap-4 mt-8">
+          <div className="flex gap-3 mt-4">
               <button
                 onClick={async () => {
                   const content = JSON.stringify(flashcards);

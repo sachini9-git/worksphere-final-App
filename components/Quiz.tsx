@@ -306,9 +306,9 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-violet-500/10 border border-violet-100/50"
+       className="w-full max-w-2xl mx-auto p-5 bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-violet-500/10 border border-violet-100/50"
     >
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-violet-500/30">
             <Brain size={24} />
@@ -336,7 +336,7 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
       </div>
 
       {!showResults ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Timer warning banner */}
           {isTimerRunning && timeLeft > 0 && timeLeft <= questions.length * 90 * 0.15 && (
             <motion.div
@@ -357,9 +357,9 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-gradient-to-br from-violet-50 to-indigo-50 p-6 rounded-2xl border-2 border-violet-200"
+              className="bg-gradient-to-br from-violet-50 to-indigo-50 p-4 rounded-2xl border-2 border-violet-200"
             >
-              <h3 className="font-bold text-lg text-slate-800 mb-4">
+              <h3 className="font-bold text-lg text-slate-800 mb-3">
                 {currentQuestion?.question}
               </h3>
 
@@ -386,13 +386,13 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
                       key={idx}
                       onClick={() => handleSelectAnswer(idx)}
                       disabled={showResults}
-                      className={`w-full p-4 rounded-xl border-2 font-bold transition-all text-left ${bgColor} ${borderColor} ${textColor}`}
+                      className={`w-full p-3 rounded-xl border-2 font-bold transition-all text-left ${bgColor} ${borderColor} ${textColor}`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-200 font-bold">
+                        <span className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-200 font-bold text-sm">
                           {String.fromCharCode(65 + idx)}
                         </span>
-                        {option}
+                        <span className="text-sm">{option}</span>
                       </div>
                     </motion.button>
                   );

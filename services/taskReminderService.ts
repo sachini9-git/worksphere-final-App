@@ -169,21 +169,21 @@ export const getUrgencyColor = (
   switch (urgency) {
     case "overdue":
       return {
-        bg: "bg-red-50",
-        border: "border-red-300",
-        text: "text-red-700",
+        bg: "bg-rose-50",
+        border: "border-rose-200",
+        text: "text-rose-700",
       };
     case "critical":
       return {
-        bg: "bg-orange-50",
-        border: "border-orange-300",
-        text: "text-orange-700",
+        bg: "bg-amber-50",
+        border: "border-amber-200",
+        text: "text-amber-700",
       };
     case "high":
       return {
-        bg: "bg-yellow-50",
-        border: "border-yellow-300",
-        text: "text-yellow-700",
+        bg: "bg-indigo-50",
+        border: "border-indigo-150",
+        text: "text-indigo-700",
       };
     case "medium":
       return {
