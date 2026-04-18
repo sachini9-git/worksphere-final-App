@@ -196,11 +196,18 @@ export const TaskReminders: React.FC<TaskRemindersProps> = ({
         </>
       )}
 
-      {/* Other reminders (collapsed by default) */}
+      {/* Other reminders */}
       {otherReminders.length > 0 && (
-        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 py-2">
-          Other ({otherReminders.length})
-        </div>
+        <>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 py-2">
+            Other ({otherReminders.length})
+          </div>
+          <div className="space-y-2">
+            {otherReminders.map((reminder) => (
+              <ReminderCard key={reminder.taskId} reminder={reminder} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
