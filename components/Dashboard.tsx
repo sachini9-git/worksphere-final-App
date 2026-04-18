@@ -275,16 +275,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ tasks, sessions, onNavigat
 
             setAiLoading(true);
             const avgSession = sessionsThisWeek.length ? Math.round(totalFocusMinutesThisWeek / sessionsThisWeek.length) : 0;
-            const prompt = `You are a study coach. Analyze the following user weekly metrics and provide personalized guidance in this EXACT markdown format:
+            const prompt = `You are a study coach. Analyze the following user weekly metrics and provide personalized guidance. Return EXACTLY this markdown structure:
 
-**Summary:** [One encouraging sentence about their progress]
+### 🌟 Weekly Summary
+[One encouraging paragraph about their progress. Be specific.]
 
-**3 Recommendations:**
-- [First recommendation with emoji and brief insight]
-- [Second recommendation with emoji and brief insight]  
-- [Third recommendation with emoji and brief insight]
+### 🎯 Strategic Recommendations
+* **[Actionable Title with Emoji]**: [Brief explanation]
+* **[Actionable Title with Emoji]**: [Brief explanation]
+* **[Actionable Title with Emoji]**: [Brief explanation]
 
-**Your Next Step:** [One specific, actionable task for tomorrow]
+### 🚀 Next Action Step
+> [One specific, actionable task they should do right now or tomorrow]
 
 User metrics:
 - Focus minutes this week: ${totalFocusMinutesThisWeek}
@@ -366,12 +368,14 @@ Keep recommendations brief (max 100 chars each). Be encouraging and specific.`;
                             ) : (
                                 aiTipText ? (
                                     <div className="prose prose-slate max-w-none 
-                                        prose-headings:text-slate-800 prose-headings:font-display prose-headings:font-bold
-                                        prose-p:text-slate-700 prose-p:leading-relaxed prose-p:mb-3
-                                        prose-li:text-slate-700 prose-li:leading-relaxed prose-li:mb-2 
-                                        prose-li:before:text-violet-500 prose-li:before:font-bold
-                                        prose-strong:text-violet-700 prose-strong:font-bold
-                                        prose-ul:my-3 prose-ul:space-y-2.5
+                                        prose-headings:text-slate-800 prose-headings:font-display prose-headings:font-black prose-headings:tracking-tight prose-headings:mb-3 prose-headings:mt-6 first:prose-headings:mt-0
+                                        prose-p:text-slate-600 prose-p:leading-relaxed prose-p:font-medium prose-p:mb-4
+                                        prose-li:text-slate-600 prose-li:leading-relaxed prose-li:mb-3 prose-li:font-medium
+                                        prose-strong:text-slate-800 prose-strong:font-extrabold
+                                        prose-blockquote:border-l-4 prose-blockquote:border-violet-500 prose-blockquote:bg-violet-50/80 prose-blockquote:py-3 prose-blockquote:px-5 prose-blockquote:rounded-r-xl prose-blockquote:text-violet-900 prose-blockquote:font-bold prose-blockquote:not-italic prose-blockquote:my-4 prose-blockquote:shadow-sm
+                                        prose-ul:my-4 prose-ul:ml-0 prose-ul:list-none
+                                        [&>ul>li]:relative [&>ul>li]:pl-6 [&>ul>li>strong]:text-violet-700
+                                        [&>ul>li::before]:content-[''] [&>ul>li::before]:absolute [&>ul>li::before]:left-0 [&>ul>li::before]:top-2.5 [&>ul>li::before]:w-2 [&>ul>li::before]:h-2 [&>ul>li::before]:bg-violet-500 [&>ul>li::before]:rounded-full [&>ul>li::before]:shadow-[0_0_8px_rgba(139,92,246,0.6)]
                                         ">
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiTipText}</ReactMarkdown>
                                     </div>
