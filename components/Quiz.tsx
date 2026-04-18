@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { CheckCircle, XCircle, RotateCcw, Brain, Lock, Unlock, BookOpen, Timer, Lightbulb, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, RotateCcw, Brain, Lock, Unlock, BookOpen, Timer, Lightbulb, AlertTriangle, Search } from "lucide-react";
 import { generateQuiz, QuizQuestion } from "../services/flashcardService";
 import { Document, DocumentType } from "../types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +20,7 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
   const [questionCount, setQuestionCount] = useState(5);
   const [selectedDoc, setSelectedDoc] = useState<string>(documents.filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set')[0]?.id || "");
   const [viewMode, setViewMode] = useState<'create' | 'saved'>('create');
+  const [searchQuery, setSearchQuery] = useState("");
   const { addXP } = useAppStore();
 
   // Timer state — 1.5 minutes per question
@@ -228,12 +229,22 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
               <label className="block text-sm font-bold text-slate-700 mb-2">
                 Select Document
               </label>
+              <div className="relative mb-2">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search documents..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm bg-slate-50"
+                />
+              </div>
               <select
                 value={selectedDoc}
                 onChange={(e) => setSelectedDoc(e.target.value)}
                 className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-slate-800"
               >
-                {documents.filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set').map((doc) => (
+                {documents.filter(d => d.type !== 'flashcard_set' && d.type !== 'quiz_set' && d.title.toLowerCase().includes(searchQuery.toLowerCase())).map((doc) => (
                   <option key={doc.id} value={doc.id}>
                     {doc.title}
                   </option>
@@ -342,10 +353,10 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-3"
+              className="bg-red-50 border border-red-200 rounded-xl p-2 flex items-center gap-2"
             >
-              <AlertTriangle size={18} className="text-red-500 flex-shrink-0" />
-              <p className="text-xs font-bold text-red-700">Time is running out! The quiz will auto-submit when the timer reaches zero.</p>
+              <AlertTriangle size={16} className="text-red-500 flex-shrink-0" />
+              <p className="text-xs font-bold text-red-700">Time is running out! The quiz will auto-submit soon.</p>
             </motion.div>
           )}
 
@@ -357,14 +368,14 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-gradient-to-br from-violet-50 to-indigo-50 p-4 rounded-2xl border-2 border-violet-200"
+              className="bg-gradient-to-br from-violet-50 to-indigo-50 p-3 rounded-2xl border-2 border-violet-200"
             >
-              <h3 className="font-bold text-lg text-slate-800 mb-3">
+              <h3 className="font-bold text-base text-slate-800 mb-2">
                 {currentQuestion?.question}
               </h3>
 
               {/* Options */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {currentQuestion?.options.map((option, idx) => {
                   const isCorrect = idx === currentQuestion.correctAnswer;
                   const isSelected = idx === currentAnswer;
@@ -386,10 +397,10 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
                       key={idx}
                       onClick={() => handleSelectAnswer(idx)}
                       disabled={showResults}
-                      className={`w-full p-3 rounded-xl border-2 font-bold transition-all text-left ${bgColor} ${borderColor} ${textColor}`}
+                      className={`w-full p-2.5 rounded-xl border-2 font-bold transition-all text-left ${bgColor} ${borderColor} ${textColor}`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-200 font-bold text-sm">
+                        <span className="w-6 h-6 flex items-center justify-center rounded-lg bg-slate-200 font-bold text-xs">
                           {String.fromCharCode(65 + idx)}
                         </span>
                         <span className="text-sm">{option}</span>
@@ -402,12 +413,12 @@ export const Quiz: React.FC<QuizProps> = ({ documents, addDocument }) => {
           </AnimatePresence>
 
           {/* Awareness tip during quiz */}
-          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3">
+          <div className="bg-slate-50 border border-slate-100 rounded-xl p-2 flex items-center gap-2">
             <Lightbulb size={16} className="text-amber-500 flex-shrink-0" />
             <p className="text-xs text-slate-500 font-medium">
-              {currentIndex === 0 && "Take your time to read each question carefully. You can navigate back to change answers."}
-              {currentIndex > 0 && currentIndex < questions.length - 1 && "You can revisit previous questions using the Previous button before submitting."}
-              {currentIndex === questions.length - 1 && "This is the last question! Review your answers, then hit Submit when ready."}
+              {currentIndex === 0 && "Take time to read. You can navigate back later."}
+              {currentIndex > 0 && currentIndex < questions.length - 1 && "You can revisit previous questions before submitting."}
+              {currentIndex === questions.length - 1 && "This is the last question! Review your answers before submitting."}
             </p>
           </div>
 
