@@ -327,47 +327,71 @@ Keep recommendations brief (max 100 chars each). Be encouraging and specific.`;
             {/* AI Tip Modal */}
             {isTipOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsTipOpen(false)} />
+                    <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-md" onClick={() => setIsTipOpen(false)} />
                     
-                    <div ref={tipRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-white overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[90vh]">
+                    <div ref={tipRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_32px_80px_-15px_rgba(139,92,246,0.35)] border border-white/80 overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[88vh]">
                         
-                        {/* Decorative Premium Header Graphic */}
-                        <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-br from-violet-600/10 via-fuchsia-600/5 to-transparent pointer-events-none"></div>
-                        <div className="absolute -top-20 -right-20 w-56 h-56 bg-violet-400/20 rounded-full blur-3xl pointer-events-none"></div>
-                        
-                        <div className="p-8 pb-6 relative z-10 flex items-start justify-between gap-4 border-b border-slate-100/50">
-                            <div className="flex items-center gap-5">
-                                <div className="w-14 h-14 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-[1.25rem] flex flex-shrink-0 items-center justify-center shadow-lg shadow-violet-500/30">
-                                    <Sparkles size={26} className="text-white" />
+                        {/* Decorative orb — top right violet */}
+                        <div className="absolute -top-24 -right-24 w-72 h-72 bg-violet-500/20 rounded-full blur-[80px] pointer-events-none" />
+                        {/* Decorative orb — bottom left teal */}
+                        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-teal-400/15 rounded-full blur-[80px] pointer-events-none" />
+                        {/* Decorative orb — center fuchsia */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-48 bg-fuchsia-400/8 rounded-full blur-[100px] pointer-events-none" />
+
+                        {/* Header gradient band */}
+                        <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-br from-violet-600/12 via-fuchsia-500/6 to-transparent pointer-events-none" />
+
+                        {/* ── HEADER ── */}
+                        <div className="p-7 pb-5 relative z-10 flex items-start justify-between gap-4 border-b border-slate-100/70">
+                            <div className="flex items-center gap-4">
+                                {/* Premium animated icon */}
+                                <div className="w-16 h-16 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 animate-gradient-shift bg-[length:200%_200%] rounded-[1.5rem] flex flex-shrink-0 items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.4)] relative">
+                                    <div className="absolute inset-0 bg-white/10 blur-sm rounded-[1.5rem]" />
+                                    <Sparkles size={28} className="text-white relative z-10" fill="currentColor" />
                                 </div>
+
                                 <div>
-                                    <h3 className="text-2xl font-display font-extrabold text-slate-800 tracking-tight">Strategy Insights</h3>
-                                    <p className="text-sm font-semibold text-slate-500 flex items-center gap-2 mt-1">
-                                       <Activity size={14} className="text-violet-500 animate-pulse"/> Behavior analysis for the selected week
+                                    {/* Badge chip */}
+                                    <span className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-widest uppercase text-violet-600 bg-violet-50 border border-violet-200/60 px-2.5 py-1 rounded-full mb-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
+                                        Weekly AI Analysis
+                                    </span>
+                                    <h3 className="text-2xl font-display font-extrabold text-slate-800 tracking-tight leading-none">Strategy Insights</h3>
+                                    <p className="text-sm font-semibold text-slate-400 flex items-center gap-1.5 mt-1.5">
+                                       <Activity size={13} className="text-violet-400 animate-pulse"/> Behaviour analysis for the selected week
                                     </p>
                                 </div>
                             </div>
-                            <button onClick={() => setIsTipOpen(false)} className="w-10 h-10 rounded-full bg-white hover:bg-slate-100 text-slate-500 flex items-center justify-center transition-colors shadow-sm border border-slate-200/50 flex-shrink-0">
-                                <X size={20} />
+
+                            {/* Close button with hover ring */}
+                            <button
+                                onClick={() => setIsTipOpen(false)}
+                                className="w-10 h-10 rounded-full bg-white hover:bg-violet-50 text-slate-400 hover:text-violet-600 flex items-center justify-center transition-all duration-200 shadow-sm border border-slate-200/60 hover:border-violet-200 hover:ring-4 hover:ring-violet-100 flex-shrink-0"
+                            >
+                                <X size={18} />
                             </button>
                         </div>
                         
-                        <div className="p-8 pt-6 overflow-y-auto custom-scrollbar relative z-10 flex-1">
+                        {/* ── BODY ── */}
+                        <div className="p-7 pt-5 overflow-y-auto relative z-10 flex-1 space-y-4">
                             {aiLoading ? (
-                                <div className="space-y-5 animate-pulse pt-2">
-                                    <div className="flex items-center gap-3 mb-4">
-                                       <div className="w-2.5 h-2.5 rounded-full bg-violet-500 animate-ping"></div>
-                                       <div className="h-5 bg-slate-200 rounded-lg w-1/2"></div>
+                                <div className="space-y-4 pt-2">
+                                    {/* Premium loading state */}
+                                    <div className="flex flex-col items-center justify-center py-8 gap-4">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-2xl flex items-center justify-center">
+                                            <Sparkles size={22} className="text-violet-500 animate-pulse" />
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-400 animate-pulse">Analysing your week...</p>
                                     </div>
-                                    <div className="h-4 bg-slate-100 rounded-lg w-full"></div>
-                                    <div className="h-4 bg-slate-100 rounded-lg w-full"></div>
-                                    <div className="h-4 bg-slate-100 rounded-lg w-4/5"></div>
-                                    <div className="h-4 bg-slate-100 rounded-lg w-full mt-4"></div>
-                                    <div className="h-4 bg-slate-100 rounded-lg w-3/4"></div>
+                                    <div className="h-3 bg-slate-100 rounded-full w-3/4 animate-pulse" />
+                                    <div className="h-3 bg-slate-100 rounded-full w-full animate-pulse" />
+                                    <div className="h-3 bg-slate-100 rounded-full w-5/6 animate-pulse" />
+                                    <div className="h-3 bg-slate-100 rounded-full w-full mt-6 animate-pulse" />
+                                    <div className="h-3 bg-slate-100 rounded-full w-4/5 animate-pulse" />
                                 </div>
                             ) : (
                                 aiTipText ? (
-                                    <div className="prose prose-slate max-w-none 
+                                    <div className="prose prose-slate max-w-none
                                         prose-headings:text-slate-800 prose-headings:font-display prose-headings:font-black prose-headings:tracking-tight prose-headings:mb-3 prose-headings:mt-6 first:prose-headings:mt-0
                                         prose-p:text-slate-600 prose-p:leading-relaxed prose-p:font-medium prose-p:mb-4
                                         prose-li:text-slate-600 prose-li:leading-relaxed prose-li:mb-3 prose-li:font-medium
@@ -376,27 +400,37 @@ Keep recommendations brief (max 100 chars each). Be encouraging and specific.`;
                                         prose-ul:my-4 prose-ul:ml-0 prose-ul:list-none
                                         [&>ul>li]:relative [&>ul>li]:pl-6 [&>ul>li>strong]:text-violet-700
                                         [&>ul>li::before]:content-[''] [&>ul>li::before]:absolute [&>ul>li::before]:left-0 [&>ul>li::before]:top-2.5 [&>ul>li::before]:w-2 [&>ul>li::before]:h-2 [&>ul>li::before]:bg-violet-500 [&>ul>li::before]:rounded-full [&>ul>li::before]:shadow-[0_0_8px_rgba(139,92,246,0.6)]
+                                        [&>h2]:bg-gradient-to-r [&>h2]:from-violet-50 [&>h2]:to-fuchsia-50/50 [&>h2]:border [&>h2]:border-violet-100/60 [&>h2]:rounded-2xl [&>h2]:px-4 [&>h2]:py-3 [&>h2]:text-violet-800 [&>h2]:text-base
+                                        [&>h3]:text-slate-700 [&>h3]:text-sm [&>h3]:uppercase [&>h3]:tracking-widest [&>h3]:font-black [&>h3]:text-violet-600
                                         ">
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiTipText}</ReactMarkdown>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                                        <Sparkles size={40} className="mb-4 opacity-30"/>
-                                        <p className="font-semibold text-lg text-slate-500">No recommendations right now.</p>
+                                    <div className="flex flex-col items-center justify-center py-14 text-slate-400">
+                                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100">
+                                            <Sparkles size={28} className="opacity-30"/>
+                                        </div>
+                                        <p className="font-bold text-slate-500 text-base">No recommendations right now.</p>
+                                        <p className="text-sm text-slate-400 mt-1 font-medium">Complete some tasks this week to get insights!</p>
                                     </div>
                                 )
                             )}
                         </div>
                         
-                        {/* Footer Action */}
-                        <div className="p-6 bg-slate-50/80 border-t border-slate-100 backdrop-blur-md relative z-10 flex justify-end">
-                            <button onClick={() => setIsTipOpen(false)} className="px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold rounded-lg shadow-md shadow-violet-500/20 active:scale-95 transition-all">
+                        {/* ── FOOTER ── */}
+                        <div className="px-7 py-5 bg-gradient-to-r from-slate-50/80 to-violet-50/40 border-t border-slate-100/70 backdrop-blur-md relative z-10 flex items-center justify-end">
+                            <button
+                                onClick={() => setIsTipOpen(false)}
+                                className="flex items-center gap-2 px-7 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold rounded-2xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 active:scale-95 transition-all duration-200 hover:-translate-y-0.5"
+                            >
+                                <Sparkles size={15} fill="currentColor" />
                                 Got it, thanks
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
 
             {/* Stats Cards */}
             <section>
