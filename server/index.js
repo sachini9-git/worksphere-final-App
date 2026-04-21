@@ -85,10 +85,11 @@ app.post('/api/generate', async (req, res) => {
 
     const systemInstruction = `You are WorkSphere AI, an intelligent and friendly study assistant.\n\nCONTEXT:\n${contextText}\n\nINSTRUCTIONS:\n1. Answer primarily from the documents when possible.\n2. If not found, answer using general knowledge but note that it's outside the provided notes.`;
 
+    const combinedPrompt = `${systemInstruction}\n\nUser Request: ${prompt}`;
+
     const response = await ai.models.generateContent({
       model: 'gemini-1.5-flash',
-      contents: prompt,
-      config: { systemInstruction }
+      contents: combinedPrompt
     });
 
     res.json({ text: response.text || null });
@@ -193,10 +194,10 @@ app.post('/api/optimize-schedule', async (req, res) => {
     5. If everything looks balanced and High Priority tasks are scheduled, give me a highly encouraging hype message.
     DO NOT give generic advice.`;
 
+    const combinedPrompt = `SYSTEM INSTRUCTION: You are an expert productivity coach.\n\n${prompt}`;
     const response = await ai.models.generateContent({
       model: 'gemini-1.5-flash',
-      contents: prompt,
-      config: { systemInstruction: "You are an expert productivity coach." }
+      contents: combinedPrompt
     });
     
     res.json({ text: response.text || "Your schedule looks solid!" });
@@ -225,10 +226,10 @@ app.post('/api/auto-schedule', async (req, res) => {
     
     Do not schedule multiple tasks for the exact same hour slot. Leave a 1-hour gap for lunch around 12:00.`;
 
+    const combinedPrompt = `SYSTEM INSTRUCTION: You are a JSON-only return bot. Never output markdown.\n\n${prompt}`;
     const response = await ai.models.generateContent({
       model: 'gemini-1.5-flash',
-      contents: prompt,
-      config: { systemInstruction: "You are a JSON-only return bot. Never output markdown." }
+      contents: combinedPrompt
     });
     
     const parsed = robustJSONParse(response.text) || [];
@@ -272,10 +273,10 @@ app.post('/api/proactive-tutor', async (req, res) => {
     4. Mention their current Level to hype them up.
     5. Be energetic and friendly! Do not use markdown backticks, just plain text.`;
 
+    const combinedPrompt = `SYSTEM INSTRUCTION: You are a proactive, friendly AI tutor widget.\n\n${prompt}`;
     const response = await ai.models.generateContent({
       model: 'gemini-1.5-flash',
-      contents: prompt,
-      config: { systemInstruction: "You are a proactive, friendly AI tutor widget." }
+      contents: combinedPrompt
     });
     
     res.json({ message: response.text || "Hello! Let's get to work and crush some tasks today!" });
