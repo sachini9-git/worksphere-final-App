@@ -34,7 +34,10 @@ const getAI = () => {
   if (!freshKey) {
     throw new Error("No Gemini API key found in .env");
   }
-  return new GoogleGenAI({ apiKey: freshKey });
+  return new GoogleGenAI({ 
+    apiKey: freshKey,
+    httpOptions: { apiVersion: 'v1' }
+  });
 };
 
 // Robust helper to cleanly extract JSON objects/arrays directly from markdown
