@@ -34,10 +34,7 @@ const getAI = () => {
   if (!freshKey) {
     throw new Error("No Gemini API key found in .env");
   }
-  return new GoogleGenAI({ 
-    apiKey: freshKey,
-    httpOptions: { apiVersion: 'v1' }
-  });
+  return new GoogleGenAI({ apiKey: freshKey });
 };
 
 // Robust helper to cleanly extract JSON objects/arrays directly from markdown
@@ -59,7 +56,7 @@ app.post('/api/summarize', async (req, res) => {
   try {
     const ai = getAI();
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       contents: `Summarize the following study notes in concise bullet points, highlighting key concepts and definitions:\n\n${content}`
     });
     res.json({ text: response.text || null });
@@ -85,11 +82,10 @@ app.post('/api/generate', async (req, res) => {
 
     const systemInstruction = `You are WorkSphere AI, an intelligent and friendly study assistant.\n\nCONTEXT:\n${contextText}\n\nINSTRUCTIONS:\n1. Answer primarily from the documents when possible.\n2. If not found, answer using general knowledge but note that it's outside the provided notes.`;
 
-    const combinedPrompt = `${systemInstruction}\n\nUser Request: ${prompt}`;
-
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: combinedPrompt
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: { systemInstruction }
     });
 
     res.json({ text: response.text || null });
@@ -110,7 +106,7 @@ app.post('/api/flashcards', async (req, res) => {
   try {
     const ai = getAI();
     const prompt = `Generate exactly ${count || 5} flashcards from the following study material. Return ONLY a JSON array with no markdown formatting. Each flashcard must have \"question\", \"answer\", and \"difficulty\" (easy/medium/hard) properties. Material:\n\n${document.content}`;
-    const response = await ai.models.generateContent({ model: 'gemini-1.5-flash', contents: prompt });
+    const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
     const parsed = robustJSONParse(response.text) || [];
     const cards = Array.isArray(parsed) ? parsed.map((card, idx) => ({
@@ -147,7 +143,7 @@ app.post('/api/quiz', async (req, res) => {
     const ai = getAI();
     const contextText = documents.map(d => `[${d.title}]\n${d.content}`).join('\n\n');
     const prompt = `Generate exactly ${questionCount || 5} multiple choice quiz questions from the following study materials. Return ONLY a JSON array with no markdown. Materials:\n\n${contextText}`;
-    const response = await ai.models.generateContent({ model: 'gemini-1.5-flash', contents: prompt });
+    const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
 
     const parsed = robustJSONParse(response.text) || [];
     const questions = Array.isArray(parsed) ? parsed.map((q, idx) => ({
@@ -194,10 +190,10 @@ app.post('/api/optimize-schedule', async (req, res) => {
     5. If everything looks balanced and High Priority tasks are scheduled, give me a highly encouraging hype message.
     DO NOT give generic advice.`;
 
-    const combinedPrompt = `SYSTEM INSTRUCTION: You are an expert productivity coach.\n\n${prompt}`;
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: combinedPrompt
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: { systemInstruction: "You are an expert productivity coach." }
     });
     
     res.json({ text: response.text || "Your schedule looks solid!" });
@@ -226,10 +222,10 @@ app.post('/api/auto-schedule', async (req, res) => {
     
     Do not schedule multiple tasks for the exact same hour slot. Leave a 1-hour gap for lunch around 12:00.`;
 
-    const combinedPrompt = `SYSTEM INSTRUCTION: You are a JSON-only return bot. Never output markdown.\n\n${prompt}`;
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: combinedPrompt
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: { systemInstruction: "You are a JSON-only return bot. Never output markdown." }
     });
     
     const parsed = robustJSONParse(response.text) || [];
@@ -273,10 +269,10 @@ app.post('/api/proactive-tutor', async (req, res) => {
     4. Mention their current Level to hype them up.
     5. Be energetic and friendly! Do not use markdown backticks, just plain text.`;
 
-    const combinedPrompt = `SYSTEM INSTRUCTION: You are a proactive, friendly AI tutor widget.\n\n${prompt}`;
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: combinedPrompt
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: { systemInstruction: "You are a proactive, friendly AI tutor widget." }
     });
     
     res.json({ message: response.text || "Hello! Let's get to work and crush some tasks today!" });
@@ -311,7 +307,7 @@ app.post('/api/studytips', async (req, res) => {
     Make it specific to the study materials mentioned, encouraging, and practical.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
 
