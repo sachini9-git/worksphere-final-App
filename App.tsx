@@ -32,17 +32,42 @@ const App: React.FC = () => {
         userXP, setUserXP, schedule, setSchedule
     } = useAppStore();
 
-    // Focus Timer State (Lifted)
-    const [focusConfig, setFocusConfig] = useState({
-        focusDuration: 25,
-        breakDuration: 5,
-        sound: 'bell' as 'bell' | 'digital' | 'chime'
+    // Focus Timer State (Lifted & Persisted)
+    const [focusConfig, setFocusConfig] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('worksphere_focusConfig') || '{"focusDuration":25,"breakDuration":5,"sound":"bell"}');
+        } catch {
+            return { focusDuration: 25, breakDuration: 5, sound: 'bell' };
+        }
     });
-    const [focusTimeLeft, setFocusTimeLeft] = useState(25 * 60);
-    const [isFocusActive, setIsFocusActive] = useState(false);
-    const [focusMode, setFocusMode] = useState<'focus' | 'break'>('focus');
-    const [focusSessionCount, setFocusSessionCount] = useState(0);
-    const [focusEndTime, setFocusEndTime] = useState<number | null>(null);
+    const [focusTimeLeft, setFocusTimeLeft] = useState(() => {
+        const val = localStorage.getItem('worksphere_focusTimeLeft');
+        return val ? parseInt(val, 10) : 25 * 60;
+    });
+    const [isFocusActive, setIsFocusActive] = useState(() => localStorage.getItem('worksphere_isFocusActive') === 'true');
+    const [focusMode, setFocusMode] = useState<'focus' | 'break'>(() => (localStorage.getItem('worksphere_focusMode') as any) || 'focus');
+    const [focusSessionCount, setFocusSessionCount] = useState(() => {
+        const val = localStorage.getItem('worksphere_focusSessionCount');
+        return val ? parseInt(val, 10) : 0;
+    });
+    const [focusEndTime, setFocusEndTime] = useState<number | null>(() => {
+        const val = localStorage.getItem('worksphere_focusEndTime');
+        return val ? parseInt(val, 10) : null;
+    });
+
+    // Sync Focus Timer State to Local Storage
+    useEffect(() => {
+        localStorage.setItem('worksphere_focusConfig', JSON.stringify(focusConfig));
+        localStorage.setItem('worksphere_focusTimeLeft', focusTimeLeft.toString());
+        localStorage.setItem('worksphere_isFocusActive', isFocusActive.toString());
+        localStorage.setItem('worksphere_focusMode', focusMode);
+        localStorage.setItem('worksphere_focusSessionCount', focusSessionCount.toString());
+        if (focusEndTime) {
+            localStorage.setItem('worksphere_focusEndTime', focusEndTime.toString());
+        } else {
+            localStorage.removeItem('worksphere_focusEndTime');
+        }
+    }, [focusConfig, focusTimeLeft, isFocusActive, focusMode, focusSessionCount, focusEndTime]);
 
     // Focus Zone State
     const [focusZoneDuration, setFocusZoneDuration] = useState(0); // in minutes
@@ -600,8 +625,15 @@ const App: React.FC = () => {
         sounds.playClick();
         setIsFocusActive(false);
         setFocusEndTime(null);
+        
+        // Save partial session if it was a focus session and at least 1 minute elapsed
         if (focusMode === 'focus') {
-            setFocusTimeLeft(focusConfig.focusDuration * 60);
+            const maxTimeSec = focusConfig.focusDuration * 60;
+            const elapsedSec = maxTimeSec - focusTimeLeft;
+            if (elapsedSec >= 60) {
+                onSessionComplete(Math.floor(elapsedSec / 60), "Partial Focus Session");
+            }
+            setFocusTimeLeft(maxTimeSec);
         } else {
             setFocusTimeLeft(focusConfig.breakDuration * 60);
         }

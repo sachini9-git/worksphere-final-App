@@ -114,6 +114,16 @@ app.post('/api/flashcards', async (req, res) => {
     res.json({ cards });
   } catch (e) {
     console.error('Flashcards error', e.message);
+    if (e.message?.toLowerCase().includes('quota') || e.status === 429 || e.status === 503 || e.message?.includes('503') || e.message?.toLowerCase().includes('overloaded')) {
+        return res.json({ cards: [{
+            id: `${document.id}-mock`,
+            question: "Mock Question due to API Limit",
+            answer: "Mock Answer",
+            documentId: document.id,
+            createdAt: new Date().toISOString(),
+            difficulty: "medium"
+        }]});
+    }
     res.status(500).json({ error: e.message || 'AI error' });
   }
 });
@@ -140,6 +150,15 @@ app.post('/api/quiz', async (req, res) => {
     res.json({ questions });
   } catch (e) {
     console.error('Quiz error', e.message);
+    if (e.message?.toLowerCase().includes('quota') || e.status === 429 || e.status === 503 || e.message?.includes('503') || e.message?.toLowerCase().includes('overloaded')) {
+        return res.json({ questions: [{
+            id: `quiz-mock`,
+            question: "This is a mock question due to API limits. What is 2 + 2?",
+            options: ["3", "4", "5", "6"],
+            correctAnswer: 1,
+            explanation: "4 is the right answer."
+        }]});
+    }
     res.status(500).json({ error: e.message || 'AI error' });
   }
 });
@@ -174,6 +193,9 @@ app.post('/api/optimize-schedule', async (req, res) => {
     res.json({ text: response.text || "Your schedule looks solid!" });
   } catch (e) {
     console.error('Optimize schedule error', e.message);
+    if (e.message?.toLowerCase().includes('quota') || e.status === 429 || e.status === 503 || e.message?.includes('503') || e.message?.toLowerCase().includes('overloaded')) {
+        return res.json({ text: "API Limit Reached. Mock Critique: Your schedule looks solid, but remember to take breaks. Try moving High Priority tasks to the morning!" });
+    }
     res.status(500).json({ error: e.message || 'AI error' });
   }
 });
@@ -204,6 +226,18 @@ app.post('/api/auto-schedule', async (req, res) => {
     res.json({ schedule: parsed });
   } catch (e) {
     console.error('Auto schedule error', e.message);
+    if (e.message?.toLowerCase().includes('quota') || e.status === 429 || e.status === 503 || e.message?.includes('503') || e.message?.toLowerCase().includes('overloaded')) {
+       const mockSchedule = relevantTasks.map((t, i) => {
+           let hour = 9 + i;
+           if (hour >= 12) hour += 1; // skip lunch
+           return {
+               taskId: t.id,
+               startTime: `${hour < 10 ? '0' : ''}${hour}:00`,
+               endTime: `${hour+1 < 10 ? '0' : ''}${hour+1}:00`
+           };
+       });
+       return res.json({ schedule: mockSchedule });
+    }
     res.status(500).json({ error: e.message || 'AI error' });
   }
 });
@@ -238,6 +272,9 @@ app.post('/api/proactive-tutor', async (req, res) => {
     res.json({ message: response.text || "Hello! Let's get to work and crush some tasks today!" });
   } catch (e) {
     console.error('Proactive tutor error', e.message);
+    if (e.message?.toLowerCase().includes('quota') || e.status === 429 || e.status === 503 || e.message?.includes('503') || e.message?.toLowerCase().includes('overloaded')) {
+        return res.json({ message: "API Limit Reached. Hey " + (userName || "Student") + "! You're doing great. Keep tackling those tasks!" });
+    }
     res.status(500).json({ error: e.message || 'AI error' });
   }
 });
@@ -281,6 +318,18 @@ app.post('/api/studytips', async (req, res) => {
     });
   } catch (error) {
     console.error("Study Tip Generation Error:", error);
+    if (error.message?.toLowerCase().includes('quota') || error.status === 429) {
+        return res.json({ 
+            tip: {
+                id: `tip-${Date.now()}`,
+                title: "Mock Study Tip",
+                content: "Stay hydrated and break your study into Pomodoro sessions to maintain high focus. (API Limit reached)",
+                category: "motivation",
+                topics: [],
+                timestamp: new Date().toISOString()
+            } 
+        });
+    }
     res.status(500).json({ error: error.message });
   }
 });
