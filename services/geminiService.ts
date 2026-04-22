@@ -1,8 +1,7 @@
 import { Document, Task, TimeBlock } from "../types";
 
 const getApiUrl = () => {
-  if (import.meta.env.PROD) return '/api';
-  return import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  return import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:4000/api');
 };
 
 export const generateAIResponse = async (
@@ -15,6 +14,12 @@ export const generateAIResponse = async (
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, contextDocuments })
     });
+    
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Server returned HTML instead of JSON. Ensure the backend server is running and configured correctly.");
+    }
+    
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Server error');
     return data.text || "I couldn't generate a response.";
@@ -34,6 +39,12 @@ export const summarizeDocument = async (content: string): Promise<string> => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content })
     });
+    
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Server returned HTML instead of JSON. Ensure the backend server is running and configured correctly.");
+    }
+    
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Server error');
     return data.text || 'No summary generated.';
@@ -67,6 +78,11 @@ export const pingOptimizeSchedule = async (tasks: Task[], schedule: TimeBlock[])
       })
     });
     
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Server returned HTML instead of JSON. Ensure the backend server is running and configured correctly.");
+    }
+    
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Server error');
     return data.text || "Your schedule looks solid!";
@@ -89,6 +105,11 @@ export const autoGenerateSchedule = async (tasks: Task[]): Promise<{taskId: stri
       body: JSON.stringify({ relevantTasks })
     });
     
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Server returned HTML instead of JSON. Ensure the backend server is running and configured correctly.");
+    }
+    
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Server error');
     return data.schedule || null;
@@ -105,6 +126,11 @@ export const fetchProactiveTutor = async (tasks: Task[], level: number, userName
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tasks, level, userName })
     });
+    
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Server returned HTML instead of JSON. Ensure the backend server is running and configured correctly.");
+    }
     
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Server error');
