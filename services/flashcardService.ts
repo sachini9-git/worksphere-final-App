@@ -1,8 +1,7 @@
 import { Document } from "../types";
 
 const getApiUrl = () => {
-  if (import.meta.env.PROD) return '/api';
-  return import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  return import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:4000/api');
 };
 
 export interface Flashcard {
@@ -31,6 +30,11 @@ export const generateFlashcards = async (
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ document, count })
     });
+
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Server returned HTML instead of JSON. Ensure the backend server is running and configured correctly.");
+    }
 
     const data = await response.json();
     if (!response.ok) {
@@ -96,6 +100,11 @@ export const generateQuiz = async (
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ documents: validDocs, questionCount })
     });
+
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Server returned HTML instead of JSON. Ensure the backend server is running and configured correctly.");
+    }
 
     const data = await response.json();
     if (!response.ok) {
